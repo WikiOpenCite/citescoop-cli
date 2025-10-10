@@ -6,13 +6,11 @@
 # Please see the documentation for all configuration options:
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
-# version: 2
-# updates:
-#   - package-ecosystem: "maven" # See documentation for possible values
-#     directory: "/backend" # Location of package manifests
-#     schedule:
-#       interval: "daily"
-#   - package-ecosystem: "npm" # See documentation for possible values
-#     directory: "/frontend" # Location of package manifests
-#     schedule:
-#       interval: "daily"
+version: 2
+updates:
+  - package-ecosystem: "vcpkg" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "deps"
