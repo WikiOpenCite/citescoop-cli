@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "lib.hpp"
+#include "lib.h"
 
 auto main() -> int {
   auto const lib = library{};

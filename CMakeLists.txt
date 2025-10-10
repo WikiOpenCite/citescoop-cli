@@ -20,7 +20,7 @@ include(cmake/variables.cmake)
 
 add_library(
     citescoop-cli_lib OBJECT
-    src/lib.cpp
+    src/lib.cc
 )
 
 target_include_directories(
@@ -36,7 +36,7 @@ target_link_libraries(citescoop-cli_lib PRIVATE fmt::fmt)
 
 # ---- Declare executable ----
 
-add_executable(citescoop-cli_exe src/main.cpp)
+add_executable(citescoop-cli_exe src/main.cc)
 add_executable(citescoop-cli::exe ALIAS citescoop-cli_exe)
 
 set_property(TARGET citescoop-cli_exe PROPERTY OUTPUT_NAME citescoop-cli)
