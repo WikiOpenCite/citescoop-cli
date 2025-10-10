@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2025 https://github.com/friendlyanon
+# SPDX-License-Identifier: Unlicense
+
+DOXYFILE = 'Doxyfile'
+
+LINKS_NAVBAR1 = [
+    (None, 'pages', [(None, 'about')]),
+    (None, 'namespaces', []),
+]

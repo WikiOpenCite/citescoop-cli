@@ -1,0 +1,4 @@
+version = 1
+SPDX-PackageName = "citescoop-cli"
+SPDX-PackageSupplier = "The University of St Andrews"
+annotations = []
