@@ -14,7 +14,7 @@ include(Catch)
 
 # ---- Tests ----
 
-add_executable(citescoop-cli_test src/citescoop-cli_test.cpp)
+add_executable(citescoop-cli_test src/citescoop-cli_test.cc)
 target_link_libraries(
     citescoop-cli_test PRIVATE
     citescoop-cli_lib

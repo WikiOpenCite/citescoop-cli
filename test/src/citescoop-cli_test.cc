@@ -3,7 +3,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "lib.hpp"
+#include "lib.h"
 
 TEST_CASE("Name is citescoop-cli", "[library]") {
   auto const lib = library{};
