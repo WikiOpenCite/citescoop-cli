@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2025 https://github.com/friendlyanon
+# SPDX-License-Identifier: Unlicense
+
+[codespell]
+builtin = clear,rare,en-GB_to_en-US,names,informal,code
+check-filenames =
+check-hidden =
+skip = */.git,*/build,*/prefix
+quiet-level = 2
