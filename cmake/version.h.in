@@ -1,0 +1,29 @@
+// SPDX-FileCopyrightText: 2025 The University of St Andrews
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#ifndef VERSION_H_
+#define VERSION_H_
+
+// clang-format off
+
+namespace wikiopencite::citescoop::cmake {
+inline constexpr std::string_view project_name = "@PROJECT_NAME@";
+inline constexpr std::string_view project_version = "@PROJECT_VERSION@";
+inline constexpr int project_version_major {
+  @PROJECT_VERSION_MAJOR@
+};
+inline constexpr int project_version_minor {
+  @PROJECT_VERSION_MINOR@
+};
+inline constexpr int project_version_patch {
+  @PROJECT_VERSION_PATCH@
+};
+inline constexpr int project_version_tweak {
+  @PROJECT_VERSION_TWEAK@
+};
+inline constexpr std::string_view git_sha = "@GIT_SHA@";
+}  // namespace wikiopencite::citescoop::cmake
+
+// clang-format on
+
+#endif
