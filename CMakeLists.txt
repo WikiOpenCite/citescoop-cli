@@ -15,41 +15,32 @@ project(
 
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
-
-# ---- Declare library ----
-
-add_library(
-    citescoop-cli_lib OBJECT
-    src/lib.cc
-)
-
-target_include_directories(
-    citescoop-cli_lib ${warning_guard}
-    PUBLIC
-    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
-)
-
-target_compile_features(citescoop-cli_lib PUBLIC cxx_std_20)
-
-find_package(fmt REQUIRED)
-target_link_libraries(citescoop-cli_lib PRIVATE fmt::fmt)
+include(cmake/configured-files.cmake)
 
 # ---- Declare executable ----
 
-add_executable(citescoop-cli_exe src/main.cc)
+add_executable(citescoop-cli_exe
+  src/commands/base_command.cc
+  src/commands/extract_command.cc
+  src/cli.cc
+  src/main.cc
+)
 add_executable(citescoop-cli::exe ALIAS citescoop-cli_exe)
+
+target_include_directories(
+    citescoop-cli_exe
+    PRIVATE
+    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/configured>"
+)
 
 set_property(TARGET citescoop-cli_exe PROPERTY OUTPUT_NAME citescoop-cli)
 
 target_compile_features(citescoop-cli_exe PRIVATE cxx_std_20)
 
-target_link_libraries(citescoop-cli_exe PRIVATE citescoop-cli_lib)
-
-# ---- Install rules ----
-
-if(NOT CMAKE_SKIP_INSTALL_RULES)
-  include(cmake/install-rules.cmake)
-endif()
+find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+target_link_libraries(citescoop-cli_exe PRIVATE spdlog::spdlog_header_only Boost::program_options fmt::fmt)
 
 # ---- Developer mode ----
 

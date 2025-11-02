@@ -5,19 +5,21 @@
     {
       "name": "fmt",
       "version>=": "11.0.2#1"
+    },
+    {
+      "name": "boost-program-options",
+      "version>=": "1.89.0"
+    },
+    {
+      "name": "spdlog",
+      "version>=": "1.16.0"
     }
   ],
   "default-features": [],
   "features": {
     "test": {
       "description": "Dependencies for testing",
-      "dependencies": [
-        {
-          "name": "catch2",
-          "version>=": "3.7.1"
-        }
-      ]
+      "dependencies": []
     }
-  },
-  "builtin-baseline": "d7112d1a4fb50410d3639f5f586972591d848beb"
+  }
 }

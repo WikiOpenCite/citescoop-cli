@@ -1,0 +1,17 @@
+{
+  "default-registry": {
+    "kind": "git",
+    "baseline": "4334d8b4c8916018600212ab4dd4bbdc343065d1",
+    "repository": "https://github.com/microsoft/vcpkg"
+  },
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://github.com/WikiOpenCite/registry",
+      "baseline": "bcecbba91c128859692d0ea10a9b2560b2f0b51c",
+      "packages": [
+        "citescoop-proto"
+      ]
+    }
+  ]
+}
