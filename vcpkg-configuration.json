@@ -8,9 +8,10 @@
     {
       "kind": "git",
       "repository": "https://github.com/WikiOpenCite/registry",
-      "baseline": "bcecbba91c128859692d0ea10a9b2560b2f0b51c",
+      "baseline": "8919733f965d132c24ef2b7c284638cb93bdd5bd",
       "packages": [
-        "citescoop-proto"
+        "citescoop-proto",
+        "citescoop"
       ]
     }
   ]
