@@ -38,7 +38,7 @@ Cli::Cli() : global_options_("Global options") {
   positional_options_.add("command", 1).add("subargs", -1);
 }
 
-void Cli::Register(std::unique_ptr<BaseCommand> command) {
+void Cli::Register(std::shared_ptr<BaseCommand> command) {
   spdlog::trace("Registering command {}", command->name());
   this->commands_.insert({command->name(), std::move(command)});
 }
@@ -129,6 +129,9 @@ void Cli::PrintGlobalHelp() {
                              command->description())
               << '\n';
   }
+
+  std::cout << '\n' << "To get command specific help, use:" << '\n';
+  std::cout << "citescoop-cli help <command>" << '\n';
 }
 
 bool Cli::HandleImmediateExecutionFlags(const options::variables_map& args) {

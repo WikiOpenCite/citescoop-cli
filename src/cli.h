@@ -25,7 +25,7 @@ class Cli {
   /// @brief Registers a command within the CLI.
   ///
   /// @param command Command to register.
-  void Register(std::unique_ptr<BaseCommand> command);
+  void Register(std::shared_ptr<BaseCommand> command);
 
   /// @brief Run the specified command if it exists. If the command
   /// specified does not exist, an exception will be thrown.
@@ -69,7 +69,7 @@ class Cli {
       const boost::program_options::variables_map& args);
 
   // Mapping of command name to command
-  std::map<std::string, std::unique_ptr<BaseCommand>> commands_;
+  std::map<std::string, std::shared_ptr<BaseCommand>> commands_;
 
   boost::program_options::options_description global_options_;
   boost::program_options::positional_options_description positional_options_;

@@ -11,6 +11,7 @@
 
 #include "boost/program_options/options_description.hpp"
 #include "boost/program_options/parsers.hpp"
+#include "boost/program_options/positional_options.hpp"
 #include "boost/program_options/variables_map.hpp"
 #include "spdlog/common.h"
 
@@ -45,6 +46,7 @@ class BaseCommand {
   std::string name_;
   std::string description_;
   boost::program_options::options_description cli_options_;
+  boost::program_options::positional_options_description positional_options_;
 };
 
 }  // namespace wikiopencite::citescoop::cli
