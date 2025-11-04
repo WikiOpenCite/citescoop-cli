@@ -29,8 +29,10 @@ void BaseCommand::PrintHelp() {
 
 std::pair<options::variables_map, options::parsed_options>
 BaseCommand::ParseArgs(std::vector<std::string> args) {
-  const options::parsed_options parsed =
-      options::command_line_parser(args).options(cli_options_).run();
+  const options::parsed_options parsed = options::command_line_parser(args)
+                                             .options(cli_options_)
+                                             .positional(positional_options_)
+                                             .run();
 
   options::variables_map cli_variables;
   options::store(parsed, cli_variables);
