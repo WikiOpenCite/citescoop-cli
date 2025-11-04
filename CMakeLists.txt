@@ -16,6 +16,7 @@ project(
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 include(cmake/configured-files.cmake)
+include(cmake/gperf.cmake)
 
 # ---- Declare executable ----
 
@@ -23,9 +24,11 @@ add_executable(citescoop-cli_exe
   src/commands/base_command.cc
   src/commands/extract_command.cc
   src/cli.cc
+  src/langmap.cc
   src/main.cc
 )
 add_executable(citescoop-cli::exe ALIAS citescoop-cli_exe)
+add_dependencies(citescoop-cli_exe generate_language_hash)
 
 target_include_directories(
     citescoop-cli_exe
