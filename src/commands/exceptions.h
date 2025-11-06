@@ -27,5 +27,13 @@ class FilesystemException : public CommandException {
 
   virtual ~FilesystemException() noexcept = default;
 };
+
+class MissingArgumentException : public CommandException {
+ public:
+  explicit MissingArgumentException(const std::string& description)
+      : CommandException(description) {}
+
+  virtual ~MissingArgumentException() noexcept = default;
+};
 }  // namespace wikiopencite::citescoop::cli
 #endif  // SRC_COMMANDS_EXCEPTIONS_H_

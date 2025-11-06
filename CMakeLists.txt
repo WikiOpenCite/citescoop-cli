@@ -26,7 +26,6 @@ add_executable(citescoop-cli_exe
   src/cli.cc
   src/langmap.cc
   src/main.cc
-  src/progress_stream_buf.cc
 )
 add_executable(citescoop-cli::exe ALIAS citescoop-cli_exe)
 add_dependencies(citescoop-cli_exe generate_language_hash)

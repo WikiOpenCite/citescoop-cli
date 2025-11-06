@@ -27,7 +27,6 @@
 #include "spdlog/spdlog.h"
 
 #include "../langmap.h"
-#include "../progress_stream_buf.h"
 #include "exceptions.h"
 
 namespace algo = boost::algorithm;
@@ -40,14 +39,22 @@ namespace wikiopencite::citescoop::cli {
 ExtractCommand::ExtractCommand()
     // NOLINTNEXTLINE(whitespace/indent_namespace)
     : BaseCommand("extract", "Extract citations from") {
-  cli_options_.add_options()("dump-root,I",
-                             options::value<std::string>()->required(),
-                             "Root directory for latest data dump")(
-      "output,o", options::value<std::string>()->required(),
-      "Directory for output files")(
-      "wiki", options::value<std::string>()->default_value("all"),
-      "Specify the wiki to process. If no wiki "
-      "is specified, all will be processed");
+  // clang-format off
+  cli_options_.add_options()
+    ("input,i", options::value<std::string>(), "Input file.")
+    ("output,o", options::value<std::string>(), "Output file.")
+    ("stdin,si", "Read input from stdin.")
+    ("dump-root,I", options::value<std::string>(),
+      "Root directory for data dump. Use when using bz2 files (warning, slow) "
+      "with automatic file discovery.")
+    ("output-dir,O", options::value<std::string>(),
+      "Directory for output files when passing the dump-root.")
+    ("wiki", options::value<std::string>()->default_value("all"),
+      "Name of wiki being processed. When using bulk mode (i.e. with dump-root)"
+      " this will select which wiki to process. When using stdin mode or file "
+      "input mode, this will correctly set the language marker in the file "
+      "header.");
+  // clang-format on
 }
 
 int ExtractCommand::Run(std::vector<std::string> args,
@@ -55,22 +62,68 @@ int ExtractCommand::Run(std::vector<std::string> args,
                         struct GlobalOptions globals) {
   auto parsed_args = ParseArgs(args);
 
-  dump_root_ = fs::path(parsed_args.first["dump-root"].as<std::string>());
-  output_dir_ = fs::path(parsed_args.first["output"].as<std::string>());
+  if (parsed_args.first.count("dump-root")) {
+    return RunMultiWikiBz2(parsed_args.first);
+  }
+
+  RunSingleWikiText(parsed_args.first);
+
+  return EXIT_SUCCESS;
+}
+
+int ExtractCommand::RunMultiWikiBz2(
+    // NOLINTNEXTLINE(whitespace/indent_namespace)
+    boost::program_options::variables_map args) {
+
+  EnsureArgument<std::string>("output-dir", args);
+
+  dump_root_ = fs::path(EnsureArgument<std::string>("dump-root", args));
+  output_dir_ = fs::path();
 
   spdlog::debug(
       "Running extractor with following options: root: {}, output: {}",
       dump_root_.string(), output_dir_.string());
 
-  auto wikis = GetWikis(parsed_args.first["wiki"].as<std::string>());
+  auto wikis = GetWikis(EnsureArgument<std::string>("wiki", args));
   auto files = GetDumpFiles(wikis);
 
   parser_ = std::make_shared<cs::Parser>(
       cs::ParserOptions{.ignore_invalid_ident = true});
-  extractor_ = std::unique_ptr<cs::Bz2Extractor>(new cs::Bz2Extractor(parser_));
+  extractor_ = std::unique_ptr<cs::Extractor>(new cs::Bz2Extractor(parser_));
 
   for (const auto& file : files) {
     ProcessFile(file);
+  }
+
+  return EXIT_SUCCESS;
+}
+
+int ExtractCommand::RunSingleWikiText(
+    // NOLINTNEXTLINE(whitespace/indent_namespace)
+    boost::program_options::variables_map args) {
+  spdlog::trace("Running single text extraction");
+  auto output = EnsureArgument<std::string>("output", args);
+  auto using_stdin = args.count("stdin") > 0;
+  auto lang = WikipediaCodeToLanguage(
+      ExtractLangCode(EnsureArgument<std::string>("wiki", args)));
+
+  parser_ = std::make_shared<cs::Parser>(
+      cs::ParserOptions{.ignore_invalid_ident = true});
+  extractor_ = std::unique_ptr<cs::Extractor>(new cs::TextExtractor(parser_));
+
+  std::string input = "";
+  if (!using_stdin) {
+    input = EnsureArgument<std::string>("input", args);
+  }
+
+  if (using_stdin) {
+    spdlog::trace("Reading input from stdin");
+    std::ofstream output_file(
+        output, std::ios::out | std::ios::binary | std::ios::trunc);
+    ProcessFile(std::cin, output_file, lang);
+    output_file.close();
+  } else {
+    ProcessFile(input, output, lang);
   }
 
   return EXIT_SUCCESS;
@@ -143,56 +196,69 @@ std::vector<std::string> ExtractCommand::GetDumpFiles(
 void ExtractCommand::ProcessFile(std::string path) {
   spdlog::debug("Processing file {}", path);
 
-  std::ifstream dump_file(path);
-  dump_file.seekg(0, std::ios::end);
-  auto file_size = dump_file.tellg();
-  dump_file.seekg(0, std::ios::beg);
-
-  ProgressStreamBuf progress_stream(dump_file.rdbuf(), file_size);
-  std::istream tracked_stream(&progress_stream);
-
-  std::atomic<bool> done{false};
-  std::thread progress_thread([&]() {
-    while (!done) {
-      std::cout << static_cast<double>(progress_stream.getBytesRead()) / 1024
-                << "%\r" << std::flush;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-  });
+  std::ifstream input_file(path);
 
   fs::path fp = path;
-  auto [pages, revisions] = extractor_->Extract(tracked_stream);
-
-  done = true;
-  progress_thread.join();
-
-  auto fileheader = proto::FileHeader();
-  fileheader.set_page_count(static_cast<int64_t>(pages->size()));
+  auto base_name = fp.filename().string();
+  base_name = base_name.substr(0, base_name.rfind("."));
 
   auto prefix = fp.filename().string();
   prefix = prefix.substr(0, prefix.find("-"));
   auto code = ExtractLangCode(prefix);
-  fileheader.set_language(WikipediaCodeToLanguage(code));
-
-  auto base_name = fp.filename().string();
-  base_name = base_name.substr(0, base_name.rfind("."));
 
   fs::path out_dir = output_dir_ / prefix;
   EnsureDirectory(out_dir);
-  fs::path out_path = out_dir / (base_name + ".pbf");
+  fs::path output = out_dir / (base_name + ".pbf");
 
-  spdlog::trace("Writing output of {} to {}", fp.string(), out_path.string());
-  std::ofstream output_file(out_path,
+  spdlog::trace("Writing output of {} to {}", fp.string(), output.string());
+  std::ofstream output_file(output,
                             std::ios::out | std::ios::binary | std::ios::trunc);
 
-  WriteMessage(fileheader, output_file);
-  WriteMessage(*revisions, output_file);
+  ProcessFile(input_file, output_file, WikipediaCodeToLanguage(code));
 
-  for (auto& page : *pages) {
-    WriteMessage(page, output_file);
-  }
-
+  input_file.close();
   output_file.close();
+}
+
+void ExtractCommand::ProcessFile(std::string input, std::string output,
+                                 // NOLINTNEXTLINE(whitespace/indent_namespace)
+                                 wikiopencite::proto::Language lang) {
+  spdlog::debug("Reading input from {}", input);
+  std::ifstream input_file(input);
+  std::ofstream output_file(output,
+                            std::ios::out | std::ios::binary | std::ios::trunc);
+
+  ProcessFile(input_file, output_file, lang);
+
+  input_file.close();
+  output_file.close();
+}
+
+void ExtractCommand::ProcessFile(std::istream& input, std::ostream& output,
+                                 // NOLINTNEXTLINE(whitespace/indent_namespace)
+                                 proto::Language lang) {
+  spdlog::trace("Starting extraction from input stream");
+
+  auto [pages, revisions] = extractor_->Extract(input);
+
+  spdlog::trace("Finished extracting citations.");
+  spdlog::debug("Stored {} pages and {} revisions.", pages->size(),
+                revisions->revisions_size());
+
+  auto fileheader = proto::FileHeader();
+  fileheader.set_page_count(static_cast<int64_t>(pages->size()));
+  fileheader.set_language(lang);
+
+  spdlog::trace("Writing file header to output");
+  WriteMessage(fileheader, output);
+
+  spdlog::trace("Writing revisions to output");
+  WriteMessage(*revisions, output);
+
+  spdlog::trace("Writing pages to output");
+  for (auto& page : *pages) {
+    WriteMessage(page, output);
+  }
 }
 
 std::string ExtractCommand::ExtractLangCode(const std::string& input) {
@@ -216,7 +282,7 @@ void ExtractCommand::EnsureDirectory(const std::filesystem::path& path) {
 
 void ExtractCommand::WriteMessage(const google::protobuf::Message& message,
                                   // NOLINTNEXTLINE(whitespace/indent_namespace)
-                                  std::ofstream& output) {
+                                  std::ostream& output) {
   std::string serialised_message;
   uint32_t serialised_size;
 
@@ -231,6 +297,17 @@ void ExtractCommand::WriteMessage(const google::protobuf::Message& message,
 
 void ExtractCommand::DisplayProgress(double val) {
   std::cout << "Progress: " << val << "%\r" << std::flush;
+}
+
+template <typename T>
+T ExtractCommand::EnsureArgument(std::string arg,
+                                 // NOLINTNEXTLINE(whitespace/indent_namespace)
+                                 boost::program_options::variables_map args) {
+  if (!args.count(arg)) {
+    throw MissingArgumentException("Missing required argument " + arg);
+  }
+
+  return args[arg].as<T>();
 }
 
 }  // namespace wikiopencite::citescoop::cli

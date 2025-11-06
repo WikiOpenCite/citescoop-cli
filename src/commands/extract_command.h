@@ -32,17 +32,26 @@ class ExtractCommand : public BaseCommand {
   std::filesystem::path dump_root_;
   std::filesystem::path output_dir_;
   std::shared_ptr<wikiopencite::citescoop::Parser> parser_;
-  std::unique_ptr<wikiopencite::citescoop::Bz2Extractor> extractor_;
+  std::unique_ptr<wikiopencite::citescoop::Extractor> extractor_;
 
+  int RunMultiWikiBz2(boost::program_options::variables_map args);
+  int RunSingleWikiText(boost::program_options::variables_map args);
   std::vector<std::string> GetWikis(std::string wiki_filter);
   std::vector<std::string> GetDumpFiles(std::vector<std::string> wikis);
+  void ProcessFile(std::istream& input, std::ostream& output,
+                   wikiopencite::proto::Language lang);
   void ProcessFile(std::string path);
+  void ProcessFile(std::string input, std::string output,
+                   wikiopencite::proto::Language lang);
 
   static std::string ExtractLangCode(const std::string& input);
   static void EnsureDirectory(const std::filesystem::path& path);
   static void WriteMessage(const google::protobuf::Message& message,
-                           std::ofstream& output);
+                           std::ostream& output);
   static void DisplayProgress(double val);
+  template <typename T>
+  static T EnsureArgument(std::string arg,
+                          boost::program_options::variables_map args);
 };
 
 }  // namespace wikiopencite::citescoop::cli
