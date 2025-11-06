@@ -11,8 +11,20 @@
       "version>=": "1.89.0"
     },
     {
+      "name": "boost-algorithm",
+      "version>=": "1.89.0"
+    },
+    {
       "name": "spdlog",
       "version>=": "1.16.0"
+    },
+    {
+      "name": "citescoop",
+      "version>=": "0.1.2"
+    },
+    {
+      "name": "citescoop-proto",
+      "version>=": "0.4.1"
     },
     {
       "name": "gperf",

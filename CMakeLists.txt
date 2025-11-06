@@ -26,6 +26,7 @@ add_executable(citescoop-cli_exe
   src/cli.cc
   src/langmap.cc
   src/main.cc
+  src/progress_stream_buf.cc
 )
 add_executable(citescoop-cli::exe ALIAS citescoop-cli_exe)
 add_dependencies(citescoop-cli_exe generate_language_hash)
@@ -40,10 +41,19 @@ set_property(TARGET citescoop-cli_exe PROPERTY OUTPUT_NAME citescoop-cli)
 
 target_compile_features(citescoop-cli_exe PRIVATE cxx_std_20)
 
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost REQUIRED COMPONENTS program_options algorithm)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
-target_link_libraries(citescoop-cli_exe PRIVATE spdlog::spdlog_header_only Boost::program_options fmt::fmt)
+find_package(citescoop REQUIRED)
+find_package(citescoop-proto REQUIRED)
+target_link_libraries(citescoop-cli_exe PRIVATE
+  spdlog::spdlog_header_only
+  Boost::program_options
+  Boost::algorithm
+  fmt::fmt
+  wikiopencite::citescoop
+  wikiopencite::citescoop-proto
+)
 
 # ---- Developer mode ----
 

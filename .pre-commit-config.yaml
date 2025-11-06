@@ -31,3 +31,4 @@ repos:
       - id: cpplint
         args:
           - --quiet
+          - --filter=-build/c++17
