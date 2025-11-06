@@ -43,8 +43,7 @@ void Cli::Register(std::shared_ptr<BaseCommand> command) {
   this->commands_.insert({command->name(), std::move(command)});
 }
 
-int Cli::Run(int argc,
-             char* argv[]) {  // NOLINT(modernize-avoid-c-arrays)
+int Cli::Run(int argc, char* argv[]) {  // NOLINT(modernize-avoid-c-arrays)
   spdlog::trace("Got request to run command");
 
   auto parsed_global_args = ParseGlobalArgs(argc, argv);
@@ -74,7 +73,13 @@ int Cli::Run(int argc,
   command_args.erase(command_args.begin());
 
   spdlog::debug("Running command {}", cmd);
-  auto r_code = commands_.at(cmd)->Run(command_args, global_args);
+  int r_code;
+  try {
+    r_code = commands_.at(cmd)->Run(command_args, global_args);
+  } catch (const std::exception& e) {
+    std::cout << e.what() << '\n';
+    return EXIT_FAILURE;
+  }
   spdlog::debug("Command exited with code {}", r_code);
   return r_code;
 }
@@ -87,6 +92,7 @@ void Cli::PrintVersion() {
 }
 
 GlobalOptions Cli::GlobalArgsToStruct(
+    // NOLINTNEXTLINE(whitespace/indent_namespace)
     const boost::program_options::variables_map& args) {
 
   GlobalOptions options;
