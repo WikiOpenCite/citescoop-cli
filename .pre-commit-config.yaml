@@ -18,9 +18,17 @@ repos:
     hooks:
       - id: reuse
 
-  - repo: local
+  # - repo: local
+  #   hooks:
+  #     - id: lint
+  #       name: linting
+  #       entry: ./scripts/lint.sh
+  #       language: script
+
+  - repo: https://github.com/cpplint/cpplint
+    rev: 2.0.0
     hooks:
-      - id: lint
-        name: linting
-        entry: ./scripts/lint.sh
-        language: script
+      - id: cpplint
+        args:
+          - --quiet
+          - --filter=-build/c++17
