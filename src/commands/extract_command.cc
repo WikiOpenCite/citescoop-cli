@@ -317,15 +317,4 @@ void ExtractCommand::DisplayProgress(double val) {
   std::cout << "Progress: " << val << "%\r" << std::flush;
 }
 
-template <typename T>
-T ExtractCommand::EnsureArgument(const std::string& arg,
-                                 // NOLINTNEXTLINE(whitespace/indent_namespace)
-                                 const options::variables_map& args) {
-  if (!args.contains(arg)) {
-    throw MissingArgumentException("Missing required argument " + arg);
-  }
-
-  return args[arg].as<T>();
-}
-
 }  // namespace wikiopencite::citescoop::cli

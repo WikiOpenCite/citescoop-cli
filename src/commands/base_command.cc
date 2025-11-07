@@ -3,15 +3,20 @@
 
 #include "base_command.h"
 
+#include <arpa/inet.h>
 #include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "spdlog/spdlog.h"
+
 #include "boost/program_options/parsers.hpp"
 #include "boost/program_options/variables_map.hpp"
 #include "citescoop/version.h"
 #include "fmt/format.h"
+
+#include "exceptions.h"
 
 namespace options = boost::program_options;
 
