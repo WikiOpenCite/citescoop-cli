@@ -55,7 +55,8 @@ int CatCommand::Run(std::vector<std::string> args,
 
   std::ifstream input(file, std::ios::in | std::ios::binary);
   auto raw_input = google::protobuf::io::IstreamInputStream(&input);
-  auto coded_input = google::protobuf::io::CodedInputStream(&raw_input);
+  auto coded_input =
+      std::make_shared<google::protobuf::io::CodedInputStream>(&raw_input);
 
   auto header = ReadMessage<proto::FileHeader>(coded_input);
   std::shared_ptr<proto::FileHeader> header_message = std::move(header.second);

@@ -63,18 +63,21 @@ class BaseCommand {
   template <class T, typename std::enable_if<std::is_base_of<
                          google::protobuf::Message, T>::value>::type* = nullptr>
   std::pair<uint32_t, std::unique_ptr<T>> ReadMessage(
-      const google::protobuf::io::CodedInputStream& input) {
+      std::shared_ptr<google::protobuf::io::CodedInputStream> input) {
     // Read the message size
     uint32_t size;
-    input.ReadRaw(&size, sizeof(size));
+
+    input->ReadRaw(&size, sizeof(size));
     size = ntohl(size);
 
-    spdlog::trace("Size of message to read is {}", size);
-
     auto message = std::make_unique<T>();
-    auto limit = input.PushLimit(size);
-    message->ParseFromCodedStream(&input);
-    input.PopLimit(limit);
+
+    auto limit = input->PushLimit(size);
+    message->ParseFromCodedStream(input.get());
+    input->PopLimit(limit);
+
+    spdlog::trace("Read message {} from disk. Size: disk: {} memory: {}",
+                  message->GetTypeName(), size, message->SpaceUsedLong());
 
     return std::make_pair(size, std::move(message));
   }
