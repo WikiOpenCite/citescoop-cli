@@ -49,9 +49,6 @@ class ExtractCommand : public BaseCommand {
   static void WriteMessage(const google::protobuf::Message& message,
                            std::ostream& output);
   static void DisplayProgress(double val);
-  template <typename T>
-  static T EnsureArgument(std::string arg,
-                          boost::program_options::variables_map args);
 };
 
 }  // namespace wikiopencite::citescoop::cli

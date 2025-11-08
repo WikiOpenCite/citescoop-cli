@@ -3,16 +3,22 @@
 
 #include "base_command.h"
 
+#include <arpa/inet.h>
 #include <iostream>
 #include <string>
 #include <utility>
 
+#include "spdlog/spdlog.h"
+
 #include "citescoop/version.h"
+
+#include "exceptions.h"
 
 namespace options = boost::program_options;
 
 namespace wikiopencite::citescoop::cli {
 BaseCommand::BaseCommand(std::string name, std::string description)
+    // NOLINTNEXTLINE(whitespace/indent_namespace)
     : cli_options_(name + " options") {
   name_ = std::move(name);
   description_ = std::move(description);
