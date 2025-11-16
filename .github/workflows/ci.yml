@@ -81,3 +81,43 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: build/docs/html
+  build:
+    needs: [lint]
+
+    strategy:
+      matrix:
+        os: [macos-14, ubuntu-24.04]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install static analyzers
+        if: matrix.os == 'ubuntu-24.04'
+        run: >-
+          sudo apt-get install clang-tidy-18 cppcheck -y -q
+
+          sudo update-alternatives --install
+          /usr/bin/clang-tidy clang-tidy
+          /usr/bin/clang-tidy-18 180
+
+      - name: Install vcpkg
+        uses: friendlyanon/setup-vcpkg@v1
+        with: { committish: "${{ env.VCPKG_COMMIT }}" }
+
+      - name: Setup MultiToolTask
+        if: matrix.os == 'windows-2022'
+        run: |
+          Add-Content "$env:GITHUB_ENV" 'UseMultiToolTask=true'
+          Add-Content "$env:GITHUB_ENV" 'EnforceProcessCountAcrossBuilds=true'
+
+      - name: Configure
+        shell: pwsh
+        run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])"
+
+      - name: Build
+        run: cmake --build build --config Release -j 2
+
+      - name: Install
+        run: cmake --install build --config Release --prefix prefix
