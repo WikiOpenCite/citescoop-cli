@@ -14,8 +14,10 @@
 
 #include "cli.h"
 #include "commands/base_command.h"
+#include "commands/cat_command.h"
 #include "commands/extract_command.h"
 #include "commands/help_command.h"
+#include "commands/meta_command.h"
 
 namespace cli = wikiopencite::citescoop::cli;
 
@@ -52,6 +54,14 @@ auto main(int argc, char** argv) -> int {
   cli.Register(command);
 
   command = std::shared_ptr<cli::BaseCommand>(new cli::HelpCommand(commands));
+  commands->push_back(command);
+  cli.Register(command);
+
+  command = std::shared_ptr<cli::BaseCommand>(new cli::CatCommand());
+  commands->push_back(command);
+  cli.Register(command);
+
+  command = std::shared_ptr<cli::BaseCommand>(new cli::MetaCommand());
   commands->push_back(command);
   cli.Register(command);
 
