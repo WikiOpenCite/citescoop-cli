@@ -25,7 +25,7 @@ BaseCommand::BaseCommand(std::string name, std::string description)
 void BaseCommand::PrintHelp() {
   namespace cmake = wikiopencite::citescoop::cmake;
   std::cout << fmt::format("Usage: {} [global options] {} [<args>]",
-                           cmake::project_name, name_)
+                           cmake::kProjectName, name_)
             << '\n';
 
   std::cout << cli_options_;

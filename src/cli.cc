@@ -87,8 +87,8 @@ int Cli::Run(int argc, char* argv[]) {  // NOLINT(modernize-avoid-c-arrays)
 
 void Cli::PrintVersion() {
   namespace cmake = wikiopencite::citescoop::cmake;
-  std::cout << fmt::format("{} v{} ({})", cmake::project_name,
-                           cmake::project_version, cmake::git_sha)
+  std::cout << fmt::format("{} v{} ({})", cmake::kProjectName,
+                           cmake::kProjectVersion, cmake::kGitSha)
             << '\n';
 }
 
@@ -125,7 +125,7 @@ std::pair<options::variables_map, options::parsed_options> Cli::ParseGlobalArgs(
 void Cli::PrintGlobalHelp() {
   namespace cmake = wikiopencite::citescoop::cmake;
   std::cout << fmt::format("Usage: {} [global options] <command> [<args>]",
-                           cmake::project_name)
+                           cmake::kProjectName)
             << '\n';
 
   // BUG(computroniks) This will also print out --command and --subargs
