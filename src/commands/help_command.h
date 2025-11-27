@@ -14,7 +14,7 @@ namespace wikiopencite::citescoop::cli {
 
 class HelpCommand : public BaseCommand {
  public:
-  HelpCommand(
+  explicit HelpCommand(
       std::shared_ptr<std::vector<std::shared_ptr<BaseCommand>>> commands);
   int Run(std::vector<std::string> args, GlobalOptions globals) override;
 

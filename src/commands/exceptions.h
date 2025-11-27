@@ -4,36 +4,34 @@
 #ifndef SRC_COMMANDS_EXCEPTIONS_H_
 #define SRC_COMMANDS_EXCEPTIONS_H_
 
+#include <exception>
 #include <string>
+#include <utility>
 
 namespace wikiopencite::citescoop::cli {
 class CommandException : public std::exception {
  public:
-  explicit CommandException(const std::string& description)
-      : m_description(description) {}
+  explicit CommandException(std::string description)
+      : error_description_(std::move(description)) {}
 
-  virtual ~CommandException() noexcept = default;
-
-  const char* what() const noexcept override { return m_description.c_str(); }
+  [[nodiscard]] const char* what() const noexcept override {
+    return error_description_.c_str();
+  }
 
  protected:
-  std::string m_description;
+  std::string error_description_;
 };
 
 class FilesystemException : public CommandException {
  public:
   explicit FilesystemException(const std::string& description)
       : CommandException(description) {}
-
-  virtual ~FilesystemException() noexcept = default;
 };
 
 class MissingArgumentException : public CommandException {
  public:
   explicit MissingArgumentException(const std::string& description)
       : CommandException(description) {}
-
-  virtual ~MissingArgumentException() noexcept = default;
 };
 }  // namespace wikiopencite::citescoop::cli
 #endif  // SRC_COMMANDS_EXCEPTIONS_H_

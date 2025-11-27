@@ -4,7 +4,6 @@
 #ifndef SRC_CLI_H_
 #define SRC_CLI_H_
 
-#include <array>
 #include <map>
 #include <memory>
 #include <string>

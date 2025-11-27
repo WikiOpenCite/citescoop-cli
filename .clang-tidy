@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025 The University of St Andrews
 # SPDX-License-Identifier: CC0-1.0
 ---
+# codespell:ignore
 # Configure clang-tidy for this project.
 
 # Here is an explanation for why some of the checks are disabled:
@@ -18,7 +19,7 @@
 #  -performance-move-const-arg: This warning requires the developer to
 #      know/care more about the implementation details of types/functions than
 #      should be necessary. For example, `A a; F(std::move(a));` will trigger a
-#      warning if and only if `A` is a trivial type (and therefore the move is
+#      warning IFF `A` is a trivial type (and therefore the move is
 #      meaningless). It would also warn if `F` accepts by `const&`, which is
 #      another detail that the caller need not care about.
 #
@@ -48,10 +49,10 @@ Checks: >
   -readability-redundant-declaration
 
 # Turn all the warnings from the checks above into errors.
-# WarningsAsErrors: "*"
+WarningsAsErrors: "*"
 
 # TODO(#205) - Enable clang-tidy checks in our headers.
-#    HeaderFilterRegex: "google/cloud/.*"
+# HeaderFilterRegex: "^citescoop/.*"
 
 CheckOptions:
   - { key: readability-identifier-naming.NamespaceCase, value: lower_case }
@@ -84,6 +85,8 @@ CheckOptions:
   - { key: readability-identifier-naming.ConstexprVariablePrefix, value: k }
   - { key: readability-identifier-naming.GlobalConstantCase, value: CamelCase }
   - { key: readability-identifier-naming.GlobalConstantPrefix, value: k }
+  - { key: readability-identifier-naming.LocalConstantCase, value: CamelCase }
+  - { key: readability-identifier-naming.LocalConstantPrefix, value: k }
   - { key: readability-identifier-naming.MemberConstantCase, value: CamelCase }
   - { key: readability-identifier-naming.MemberConstantPrefix, value: k }
   - { key: readability-identifier-naming.StaticConstantCase, value: CamelCase }

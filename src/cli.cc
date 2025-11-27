@@ -4,6 +4,7 @@
 #include "cli.h"
 
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -86,8 +87,8 @@ int Cli::Run(int argc, char* argv[]) {  // NOLINT(modernize-avoid-c-arrays)
 
 void Cli::PrintVersion() {
   namespace cmake = wikiopencite::citescoop::cmake;
-  std::cout << fmt::format("{} v{} ({})", cmake::project_name,
-                           cmake::project_version, cmake::git_sha)
+  std::cout << fmt::format("{} v{} ({})", cmake::kProjectName,
+                           cmake::kProjectVersion, cmake::kGitSha)
             << '\n';
 }
 
@@ -104,6 +105,8 @@ GlobalOptions Cli::GlobalArgsToStruct(
 std::pair<options::variables_map, options::parsed_options> Cli::ParseGlobalArgs(
     int argc, char* argv[]) {  //NOLINT (modernize-avoid-c-arrays)
 
+  // Changes each run
+  // NOLINTNEXTLINE(readability-identifier-naming)
   const options::parsed_options parsed =
       options::command_line_parser(argc, argv)
           .options(global_options_)
@@ -122,7 +125,7 @@ std::pair<options::variables_map, options::parsed_options> Cli::ParseGlobalArgs(
 void Cli::PrintGlobalHelp() {
   namespace cmake = wikiopencite::citescoop::cmake;
   std::cout << fmt::format("Usage: {} [global options] <command> [<args>]",
-                           cmake::project_name)
+                           cmake::kProjectName)
             << '\n';
 
   // BUG(computroniks) This will also print out --command and --subargs
@@ -130,7 +133,7 @@ void Cli::PrintGlobalHelp() {
   std::cout << global_options_;
   std::cout << '\n' << "Available commands: " << '\n';
 
-  for (auto const& [_, command] : commands_) {
+  for (auto const& [unused, command] : commands_) {
     std::cout << fmt::format("{}\t\t{}", command->name(),
                              command->description())
               << '\n';

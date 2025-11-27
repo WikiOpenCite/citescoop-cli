@@ -3,7 +3,11 @@
 
 #include "extract_command.h"
 
+// NOLINTNEXTLINE(misc-include-cleaner)
 #include <arpa/inet.h>
+
+#include <cstdint>
+#include <cstdlib>
 // NOLINTNEXTLINE(build/c++17)
 #include <filesystem>
 #include <fstream>
@@ -17,17 +21,20 @@
 #include "boost/algorithm/string/predicate.hpp"
 #include "boost/program_options/options_description.hpp"
 #include "boost/program_options/parsers.hpp"
-#include "boost/program_options/positional_options.hpp"
 #include "boost/program_options/value_semantic.hpp"
 #include "boost/program_options/variables_map.hpp"
 #include "citescoop/extract.h"
 #include "citescoop/parser.h"
 #include "citescoop/proto/file_header.pb.h"
+#include "citescoop/proto/language.pb.h"
 #include "fmt/ranges.h"
 #include "spdlog/spdlog.h"
 
 #include "../langmap.h"
+#include "base_command.h"
 #include "exceptions.h"
+
+namespace wikiopencite::citescoop::cli {
 
 namespace algo = boost::algorithm;
 namespace options = boost::program_options;
@@ -35,7 +42,6 @@ namespace fs = std::filesystem;
 namespace cs = wikiopencite::citescoop;
 namespace proto = wikiopencite::proto;
 
-namespace wikiopencite::citescoop::cli {
 ExtractCommand::ExtractCommand()
     // NOLINTNEXTLINE(whitespace/indent_namespace)
     : BaseCommand("extract", "Extract citations from") {
@@ -57,12 +63,14 @@ ExtractCommand::ExtractCommand()
   // clang-format on
 }
 
-int ExtractCommand::Run(std::vector<std::string> args,
-                        // NOLINTNEXTLINE(whitespace/indent_namespace)
-                        struct GlobalOptions globals) {
+int ExtractCommand::Run(
+    // NOLINTNEXTLINE(whitespace/indent_namespace)
+    std::vector<std::string> args,
+    // NOLINTNEXTLINE(whitespace/indent_namespace,misc-unused-parameters)
+    struct GlobalOptions globals) {
   auto parsed_args = ParseArgs(args);
 
-  if (parsed_args.first.count("dump-root")) {
+  if (parsed_args.first.contains("dump-root")) {
     return RunMultiWikiBz2(parsed_args.first);
   }
 
@@ -71,10 +79,7 @@ int ExtractCommand::Run(std::vector<std::string> args,
   return EXIT_SUCCESS;
 }
 
-int ExtractCommand::RunMultiWikiBz2(
-    // NOLINTNEXTLINE(whitespace/indent_namespace)
-    boost::program_options::variables_map args) {
-
+int ExtractCommand::RunMultiWikiBz2(const options::variables_map& args) {
   EnsureArgument<std::string>("output-dir", args);
 
   dump_root_ = fs::path(EnsureArgument<std::string>("dump-root", args));
@@ -98,12 +103,10 @@ int ExtractCommand::RunMultiWikiBz2(
   return EXIT_SUCCESS;
 }
 
-int ExtractCommand::RunSingleWikiText(
-    // NOLINTNEXTLINE(whitespace/indent_namespace)
-    boost::program_options::variables_map args) {
+int ExtractCommand::RunSingleWikiText(const options::variables_map& args) {
   spdlog::trace("Running single text extraction");
   auto output = EnsureArgument<std::string>("output", args);
-  auto using_stdin = args.count("stdin") > 0;
+  auto using_stdin = args.contains("stdin");
   auto lang = WikipediaCodeToLanguage(
       ExtractLangCode(EnsureArgument<std::string>("wiki", args)));
 
@@ -111,7 +114,7 @@ int ExtractCommand::RunSingleWikiText(
       cs::ParserOptions{.ignore_invalid_ident = true});
   extractor_ = std::unique_ptr<cs::Extractor>(new cs::TextExtractor(parser_));
 
-  std::string input = "";
+  std::string input;
   if (!using_stdin) {
     input = EnsureArgument<std::string>("input", args);
   }
@@ -129,7 +132,8 @@ int ExtractCommand::RunSingleWikiText(
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> ExtractCommand::GetWikis(std::string wiki_filter) {
+std::vector<std::string> ExtractCommand::GetWikis(
+    const std::string& wiki_filter) {  // NOLINT(whitespace/indent_namespace)
   auto wikis = std::vector<std::string>();
   try {
     if (wiki_filter == "all") {
@@ -163,12 +167,13 @@ std::vector<std::string> ExtractCommand::GetWikis(std::string wiki_filter) {
 
 std::vector<std::string> ExtractCommand::GetDumpFiles(
     // NOLINTNEXTLINE(whitespace/indent_namespace)
-    std::vector<std::string> wikis) {
+    const std::vector<std::string>& wikis) {
   auto files = std::vector<std::string>();
-  std::regex file_pattern(R"(^.+-.*-pages-meta-history\d+\.xml.*\.bz2$)");
+  const std::regex kFilePattern(R"(^.+-.*-pages-meta-history\d+\.xml.*\.bz2$)");
 
   for (const auto& wiki : wikis) {
-    fs::path dir = dump_root_ / fs::path(wiki);
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    const fs::path dir = dump_root_ / fs::path(wiki);
     try {
       if (!fs::exists(dir) || !fs::is_directory(dir)) {
         throw FilesystemException("Could not find directory " + dir.string());
@@ -176,9 +181,10 @@ std::vector<std::string> ExtractCommand::GetDumpFiles(
 
       for (const auto& entry : fs::directory_iterator(dir)) {
         if (fs::is_regular_file(entry.status())) {
-          std::string filename = entry.path().filename().string();
+          // NOLINTNEXTLINE(readability-identifier-naming)
+          const std::string filename = entry.path().filename().string();
 
-          if (std::regex_match(filename, file_pattern)) {
+          if (std::regex_match(filename, kFilePattern)) {
             files.push_back(entry.path().string());
           }
         }
@@ -198,19 +204,23 @@ void ExtractCommand::ProcessFile(std::string path) {
 
   std::ifstream input_file(path);
 
-  fs::path fp = path;
-  auto base_name = fp.filename().string();
-  base_name = base_name.substr(0, base_name.rfind("."));
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  const fs::path file_path = path;
+  auto base_name = file_path.filename().string();
+  base_name = base_name.substr(0, base_name.rfind('.'));
 
-  auto prefix = fp.filename().string();
-  prefix = prefix.substr(0, prefix.find("-"));
+  auto prefix = file_path.filename().string();
+  prefix = prefix.substr(0, prefix.find('-'));
   auto code = ExtractLangCode(prefix);
 
-  fs::path out_dir = output_dir_ / prefix;
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  const fs::path out_dir = output_dir_ / prefix;
   EnsureDirectory(out_dir);
-  fs::path output = out_dir / (base_name + ".pbf");
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  const fs::path output = out_dir / (base_name + ".pbf");
 
-  spdlog::trace("Writing output of {} to {}", fp.string(), output.string());
+  spdlog::trace("Writing output of {} to {}", file_path.string(),
+                output.string());
   std::ofstream output_file(output,
                             std::ios::out | std::ios::binary | std::ios::trunc);
 
@@ -220,9 +230,10 @@ void ExtractCommand::ProcessFile(std::string path) {
   output_file.close();
 }
 
-void ExtractCommand::ProcessFile(std::string input, std::string output,
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void ExtractCommand::ProcessFile(std::string input, const std::string& output,
                                  // NOLINTNEXTLINE(whitespace/indent_namespace)
-                                 wikiopencite::proto::Language lang) {
+                                 proto::Language lang) {
   spdlog::debug("Reading input from {}", input);
   std::ifstream input_file(input);
   std::ofstream output_file(output,
@@ -262,10 +273,10 @@ void ExtractCommand::ProcessFile(std::istream& input, std::ostream& output,
 }
 
 std::string ExtractCommand::ExtractLangCode(const std::string& input) {
-  const std::string suffix = "wiki";
-  auto pos = input.rfind(suffix);
+  const std::string kSuffix = "wiki";
+  auto pos = input.rfind(kSuffix);
 
-  if (pos != std::string::npos && pos == input.size() - suffix.size()) {
+  if (pos != std::string::npos && pos == input.size() - kSuffix.size()) {
     return input.substr(0, pos);
   }
 
@@ -287,6 +298,7 @@ void ExtractCommand::WriteMessage(const google::protobuf::Message& message,
   uint32_t serialised_size;
 
   message.SerializeToString(&serialised_message);
+  // NOLINTNEXTLINE(misc-include-cleaner)
   serialised_size = htonl(serialised_message.size());
 
   output.write(reinterpret_cast<char*>(&serialised_size),
@@ -300,10 +312,10 @@ void ExtractCommand::DisplayProgress(double val) {
 }
 
 template <typename T>
-T ExtractCommand::EnsureArgument(std::string arg,
+T ExtractCommand::EnsureArgument(const std::string& arg,
                                  // NOLINTNEXTLINE(whitespace/indent_namespace)
-                                 boost::program_options::variables_map args) {
-  if (!args.count(arg)) {
+                                 const options::variables_map& args) {
+  if (!args.contains(arg)) {
     throw MissingArgumentException("Missing required argument " + arg);
   }
 

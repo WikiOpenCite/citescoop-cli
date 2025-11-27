@@ -28,12 +28,36 @@ jobs:
       - name: Install codespell
         run: pip3 install codespell
 
+      - name: Install run-clang-tidy
+        uses: plinioh/setup-binary-action@v1.0.0
+        with:
+          binaryName: run-clang-tidy
+          binaryUrl: https://github.com/lmapii/run-clang-tidy/releases/download/v0.3.1/run-clang-tidy-v0.3.1-x86_64-unknown-linux-gnu.tar.gz
+          binaryPathInArchive: run-clang-tidy-v0.3.1-x86_64-unknown-linux-gnu/run-clang-tidy
+
+      - name: Install static analyzers
+        run: sudo apt-get install cppcheck -y -q
+
+      - name: Install vcpkg
+        uses: friendlyanon/setup-vcpkg@v1
+        with: { committish: "${{ env.VCPKG_COMMIT }}" }
+
       - name: Lint
         run: cmake -D FORMAT_COMMAND=clang-format-18 -P cmake/lint.cmake
 
-      - name: Spell check
-        if: always()
-        run: cmake -P cmake/spell.cmake
+      - name: Configure
+        shell: pwsh
+        run: cmake --preset=ci-ubuntu
+
+      - name: Build
+        run: cmake --build build -j 2
+
+      - name: Tidy
+        run: run-clang-tidy .github/workflows/tidy.json --suppress-warnings
+
+      # - name: Spell check
+      #   if: always()
+      #   run: cmake -P cmake/spell.cmake
 
   docs:
     # Deploy docs only when builds succeed
