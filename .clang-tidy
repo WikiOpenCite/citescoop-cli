@@ -52,7 +52,7 @@ Checks: >
 WarningsAsErrors: "*"
 
 # TODO(#205) - Enable clang-tidy checks in our headers.
-HeaderFilterRegex: "^citescoop/.*"
+# HeaderFilterRegex: "^citescoop/.*"
 
 CheckOptions:
   - { key: readability-identifier-naming.NamespaceCase, value: lower_case }
