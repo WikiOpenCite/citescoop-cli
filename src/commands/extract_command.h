@@ -6,14 +6,15 @@
 
 // NOLINTNEXTLINE(build/c++17)
 #include <filesystem>
+#include <istream>
 #include <memory>
 #include <ostream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "google/protobuf/message.h"
 
+#include "boost/program_options/variables_map.hpp"
 #include "citescoop/extract.h"
 #include "citescoop/parser.h"
 #include "citescoop/proto/file_header.pb.h"
@@ -34,14 +35,14 @@ class ExtractCommand : public BaseCommand {
   std::shared_ptr<wikiopencite::citescoop::Parser> parser_;
   std::unique_ptr<wikiopencite::citescoop::Extractor> extractor_;
 
-  int RunMultiWikiBz2(boost::program_options::variables_map args);
-  int RunSingleWikiText(boost::program_options::variables_map args);
-  std::vector<std::string> GetWikis(std::string wiki_filter);
-  std::vector<std::string> GetDumpFiles(std::vector<std::string> wikis);
+  int RunMultiWikiBz2(const boost::program_options::variables_map& args);
+  int RunSingleWikiText(const boost::program_options::variables_map& args);
+  std::vector<std::string> GetWikis(const std::string& wiki_filter);
+  std::vector<std::string> GetDumpFiles(const std::vector<std::string>& wikis);
   void ProcessFile(std::istream& input, std::ostream& output,
                    wikiopencite::proto::Language lang);
   void ProcessFile(std::string path);
-  void ProcessFile(std::string input, std::string output,
+  void ProcessFile(std::string input, const std::string& output,
                    wikiopencite::proto::Language lang);
 
   static std::string ExtractLangCode(const std::string& input);
@@ -50,8 +51,8 @@ class ExtractCommand : public BaseCommand {
                            std::ostream& output);
   static void DisplayProgress(double val);
   template <typename T>
-  static T EnsureArgument(std::string arg,
-                          boost::program_options::variables_map args);
+  static T EnsureArgument(const std::string& arg,
+                          const boost::program_options::variables_map& args);
 };
 
 }  // namespace wikiopencite::citescoop::cli

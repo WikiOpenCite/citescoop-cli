@@ -6,14 +6,18 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <vector>
 
+#include "boost/program_options/parsers.hpp"
+#include "boost/program_options/variables_map.hpp"
 #include "citescoop/version.h"
+#include "fmt/format.h"
 
 namespace options = boost::program_options;
 
 namespace wikiopencite::citescoop::cli {
 BaseCommand::BaseCommand(std::string name, std::string description)
-    : cli_options_(name + " options") {
+    : cli_options_(name + " options") {  // NOLINT(whitespace/indent_namespace)
   name_ = std::move(name);
   description_ = std::move(description);
 }
@@ -28,7 +32,9 @@ void BaseCommand::PrintHelp() {
 }
 
 std::pair<options::variables_map, options::parsed_options>
-BaseCommand::ParseArgs(std::vector<std::string> args) {
+BaseCommand::ParseArgs(const std::vector<std::string>& args) {
+  // Changes each call.
+  // NOLINTNEXTLINE(readability-identifier-naming)
   const options::parsed_options parsed = options::command_line_parser(args)
                                              .options(cli_options_)
                                              .positional(positional_options_)

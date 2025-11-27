@@ -3,13 +3,16 @@
 
 #include "langmap.h"
 
+#include <cstddef>
+#include <cstring>
 #include <string>
 
 #include "citescoop/languages.h"
-
-namespace proto = wikiopencite::proto;
+#include "citescoop/proto/language.pb.h"
 
 namespace wikiopencite::citescoop::cli {
+
+namespace proto = wikiopencite::proto;
 
 proto::Language WikipediaCodeToLanguage(const char* code, size_t len) {
   const LanguageCode* result = Languages::lookup(code, len);
@@ -36,7 +39,8 @@ proto::Language WikipediaDomainToLanguage(const char* domain) {
 }
 
 proto::Language WikipediaDomainToLanguage(const std::string& domain) {
-  size_t dot_pos = domain.find('.');
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  const size_t dot_pos = domain.find('.');
   if (dot_pos != std::string::npos) {
     return WikipediaCodeToLanguage(domain.data(), dot_pos);
   }

@@ -42,7 +42,7 @@ class BaseCommand {
  protected:
   std::pair<boost::program_options::variables_map,
             boost::program_options::parsed_options>
-  ParseArgs(std::vector<std::string> args);
+  ParseArgs(const std::vector<std::string>& args);
   std::string name_;
   std::string description_;
   boost::program_options::options_description cli_options_;
