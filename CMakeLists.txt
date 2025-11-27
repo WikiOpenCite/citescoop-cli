@@ -18,6 +18,9 @@ include(cmake/variables.cmake)
 include(cmake/configured-files.cmake)
 include(cmake/gperf.cmake)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
 # ---- Declare executable ----
 
 add_executable(citescoop-cli_exe
