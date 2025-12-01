@@ -25,8 +25,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(citescoop-cli_exe
   src/commands/base_command.cc
+  src/commands/cat_command.cc
   src/commands/extract_command.cc
   src/commands/help_command.cc
+  src/commands/meta_command.cc
   src/cli.cc
   src/langmap.cc
   src/main.cc

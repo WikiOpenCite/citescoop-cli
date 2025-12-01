@@ -4,6 +4,8 @@
 #ifndef SRC_COMMANDS_BASE_COMMAND_H_
 #define SRC_COMMANDS_BASE_COMMAND_H_
 
+#include <arpa/inet.h>  // NOLINT(misc-include-cleaner)
+
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -14,6 +16,8 @@
 #include "boost/program_options/positional_options.hpp"
 #include "boost/program_options/variables_map.hpp"
 #include "spdlog/common.h"
+
+#include "exceptions.h"
 
 namespace wikiopencite::citescoop::cli {
 struct GlobalOptions {
@@ -43,6 +47,18 @@ class BaseCommand {
   std::pair<boost::program_options::variables_map,
             boost::program_options::parsed_options>
   ParseArgs(const std::vector<std::string>& args);
+
+  template <typename T>
+  T EnsureArgument(const std::string& arg,
+                   // NOLINTNEXTLINE(whitespace/indent_namespace)
+                   const boost::program_options::variables_map& args) {
+    if (!args.contains(arg)) {
+      throw MissingArgumentException("Missing required argument " + arg);
+    }
+
+    return args[arg].as<T>();
+  }
+
   std::string name_;
   std::string description_;
   boost::program_options::options_description cli_options_;
