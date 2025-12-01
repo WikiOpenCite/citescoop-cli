@@ -20,11 +20,11 @@
     },
     {
       "name": "citescoop",
-      "version>=": "0.1.2"
+      "version>=": "0.2.0"
     },
     {
       "name": "citescoop-proto",
-      "version>=": "0.4.1"
+      "version>=": "0.5.0"
     },
     {
       "name": "gperf",
