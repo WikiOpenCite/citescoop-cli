@@ -12,12 +12,8 @@
 #include <string>
 #include <vector>
 
-#include "google/protobuf/message.h"
-
-#include "boost/program_options/variables_map.hpp"
 #include "citescoop/extract.h"
 #include "citescoop/parser.h"
-#include "citescoop/proto/file_header.pb.h"
 #include "citescoop/proto/language.pb.h"
 
 #include "base_command.h"
@@ -35,21 +31,10 @@ class ExtractCommand : public BaseCommand {
   std::shared_ptr<wikiopencite::citescoop::Parser> parser_;
   std::unique_ptr<wikiopencite::citescoop::Extractor> extractor_;
 
-  int RunMultiWikiBz2(const boost::program_options::variables_map& args);
-  int RunSingleWikiText(const boost::program_options::variables_map& args);
-  std::vector<std::string> GetWikis(const std::string& wiki_filter);
-  std::vector<std::string> GetDumpFiles(const std::vector<std::string>& wikis);
-  void ProcessFile(std::istream& input, std::ostream& output,
-                   wikiopencite::proto::Language lang);
-  void ProcessFile(std::string path);
-  void ProcessFile(std::string input, const std::string& output,
+  void ProcessFile(std::istream& input, std::ostream* output,
                    wikiopencite::proto::Language lang);
 
   static std::string ExtractLangCode(const std::string& input);
-  static void EnsureDirectory(const std::filesystem::path& path);
-  static void WriteMessage(const google::protobuf::Message& message,
-                           std::ostream& output);
-  static void DisplayProgress(double val);
 };
 
 }  // namespace wikiopencite::citescoop::cli
