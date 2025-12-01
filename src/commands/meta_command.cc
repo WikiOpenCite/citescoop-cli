@@ -3,15 +3,17 @@
 
 #include "meta_command.h"
 
-#include <arpa/inet.h>
+#include <array>
 #include <cstddef>
-// NOLINTNEXTLINE(build/c++17)
-#include <filesystem>
+#include <cstdint>
+#include <cstdlib>
+#include <filesystem>  // NOLINT(build/c++17)
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <ostream>
-#include <regex>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -20,29 +22,26 @@
 #include "boost/program_options/parsers.hpp"
 #include "boost/program_options/positional_options.hpp"
 #include "boost/program_options/value_semantic.hpp"
-#include "boost/program_options/variables_map.hpp"
+#include "citescoop/io.h"
 #include "citescoop/proto/file_header.pb.h"
 #include "citescoop/proto/language.pb.h"
 #include "citescoop/proto/page.pb.h"
-#include "citescoop/proto/revision_map.pb.h"
+#include "citescoop/proto/revision.pb.h"
 #include "google/protobuf/descriptor.h"
-#include "google/protobuf/io/coded_stream.h"
-#include "google/protobuf/io/zero_copy_stream.h"
-#include "google/protobuf/io/zero_copy_stream_impl.h"
-#include "spdlog/spdlog.h"
 
-#include "exceptions.h"
+#include "base_command.h"
+
+namespace wikiopencite::citescoop::cli {
 
 namespace options = boost::program_options;
 namespace fs = std::filesystem;
 namespace cs = wikiopencite::citescoop;
 namespace proto = wikiopencite::proto;
 
-namespace wikiopencite::citescoop::cli {
 namespace {
 std::string FormatFileSize(size_t size) {
-  const char* units[] = {"B", "K", "M", "G", "T"};
-  const int numUnits = 5;
+  constexpr std::array<const char*, 5> kUnits = {"B", "K", "M", "G", "T"};
+  const int kUnitsSize = 5;
 
   // Handle negative values
   if (size < 0) {
@@ -55,33 +54,35 @@ std::string FormatFileSize(size_t size) {
   }
 
   // Calculate the appropriate unit
-  int unitIndex = 0;
-  double calc_size = static_cast<double>(size);
+  int unit_index = 0;
+  auto calc_size = static_cast<double>(size);
 
-  while (calc_size >= 1024.0 && unitIndex < numUnits - 1) {
-    calc_size /= 1024.0;
-    unitIndex++;
+  const double kDivisor = 1024.0;
+
+  while (calc_size >= kDivisor && unit_index < kUnitsSize - 1) {
+    calc_size /= kDivisor;
+    unit_index++;
   }
 
   // Determine decimal places based on size
-  int decimalPlaces;
-  if (calc_size >= 100) {
-    decimalPlaces = 0;  // e.g., "123 MB"
-  } else if (calc_size >= 10) {
-    decimalPlaces = 1;  // e.g., "12.3 MB"
+  int decimal_places;
+  if (calc_size >= 100) {  // NOLINT(readability-magic-numbers)
+    decimal_places = 0;
+  } else if (calc_size >= 10) {  // NOLINT(readability-magic-numbers)
+    decimal_places = 1;
   } else {
-    decimalPlaces = 2;  // e.g., "1.23 MB"
+    decimal_places = 2;
   }
 
   // Special case: bytes don't need decimals
-  if (unitIndex == 0) {
-    decimalPlaces = 0;
+  if (unit_index == 0) {
+    decimal_places = 0;
   }
 
   // Format the output
   std::ostringstream oss;
-  oss << std::fixed << std::setprecision(decimalPlaces) << calc_size
-      << units[unitIndex];
+  oss << std::fixed << std::setprecision(decimal_places) << calc_size
+      << kUnits[unit_index];
 
   return oss.str();
 }
@@ -93,7 +94,7 @@ MetaCommand::MetaCommand()
   // clang-format off
   cli_options_.add_options()
     ("file", options::value<std::string>()->required(), "Input file.")
-    ("pretty,p", options::bool_switch()->default_value(false),
+    ("pretty,p", options::value<bool>()->zero_tokens()->default_value(false),
     "Display sizes like 1K 234M 2G etc. Uses powers of 1024");
   positional_options_.add("file", 1);
 
@@ -108,21 +109,26 @@ int MetaCommand::Run(std::vector<std::string> args,
   auto pretty_print = EnsureArgument<bool>("pretty", parsed_args.first);
 
   std::ifstream input(file, std::ios::in | std::ios::binary);
-  auto raw_input = google::protobuf::io::IstreamInputStream(&input);
-  auto coded_input =
-      std::make_shared<google::protobuf::io::CodedInputStream>(&raw_input);
+  auto reader = cs::MessageReader(&input);
 
-  auto header = ReadMessage<proto::FileHeader>(coded_input);
-  auto revisions = ReadMessage<proto::RevisionMap>(coded_input);
+  auto header = reader.ReadMessage<proto::FileHeader>();
 
-  int total_page_size_disk = 0;
+  size_t total_revisions_size_disk = 0;
+  size_t total_revisions_size_mem = 0;
+  for (int64_t i = 0; i < header->revision_count(); i++) {
+    auto revision = reader.ReadMessage<proto::Revision>();
+    total_revisions_size_disk += revision->ByteSizeLong();
+    total_revisions_size_mem += revision->SpaceUsedLong();
+  }
+
+  size_t total_page_size_disk = 0;
   size_t total_page_size_mem = 0;
-  int total_citations = 0;
-  for (int64_t i = 0; i < header.second->page_count(); i++) {
-    auto page = ReadMessage<proto::Page>(coded_input);
-    total_page_size_disk += page.first;
-    total_page_size_mem += page.second->SpaceUsedLong();
-    total_citations += page.second->citations_size();
+  size_t total_citations = 0;
+  for (int64_t i = 0; i < header->page_count(); i++) {
+    auto page = reader.ReadMessage<proto::Page>();
+    total_page_size_disk += page->ByteSizeLong();
+    total_page_size_mem += page->SpaceUsedLong();
+    total_citations += page->citations_size();
   }
 
   const google::protobuf::EnumDescriptor* descriptor =
@@ -130,25 +136,23 @@ int MetaCommand::Run(std::vector<std::string> args,
 
   auto page_size_disk_str = std::to_string(total_page_size_disk);
   auto page_size_mem_str = std::to_string(total_page_size_mem);
-  auto revisions_size_disk_str = std::to_string(revisions.first);
-  auto revisions_size_mem_str =
-      std::to_string(revisions.second->SpaceUsedLong());
+  auto revisions_size_disk_str = std::to_string(total_revisions_size_disk);
+  auto revisions_size_mem_str = std::to_string(total_revisions_size_mem);
   if (pretty_print) {
     page_size_disk_str = FormatFileSize(total_page_size_disk);
     page_size_mem_str = FormatFileSize(total_page_size_mem);
-    revisions_size_disk_str = FormatFileSize(revisions.first);
-    revisions_size_mem_str = FormatFileSize(revisions.second->SpaceUsedLong());
+    revisions_size_disk_str = FormatFileSize(total_revisions_size_disk);
+    revisions_size_mem_str = FormatFileSize(total_revisions_size_mem);
   }
 
   std::cout << "Language: "
-            << descriptor->FindValueByNumber(header.second->language())->name()
+            << descriptor->FindValueByNumber(header->language())->name()
             << '\n';
-  std::cout << "Total pages: " << header.second->page_count() << '\n';
+  std::cout << "Total pages: " << header->page_count() << '\n';
   std::cout << "Total pages size (disk): " << page_size_disk_str << '\n';
   std::cout << "Total pages size (memory): " << page_size_mem_str << '\n';
   std::cout << "Total citations: " << total_citations << '\n';
-  std::cout << "Total revisions: " << revisions.second->revisions_size()
-            << '\n';
+  std::cout << "Total revisions: " << header->revision_count() << '\n';
   std::cout << "Total revisions size (disk): " << revisions_size_disk_str
             << '\n';
   std::cout << "Total revisions size (memory): " << revisions_size_mem_str

@@ -4,6 +4,7 @@
 #ifndef SRC_COMMANDS_CAT_COMMAND_H_
 #define SRC_COMMANDS_CAT_COMMAND_H_
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -19,8 +20,8 @@ class CatCommand : public BaseCommand {
   int Run(std::vector<std::string> args, GlobalOptions globals) override;
 
  private:
-  void PrintMessage(std::shared_ptr<google::protobuf::Message> message,
-                    uint32_t size);
+  static void PrintMessage(const google::protobuf::Message& message,
+                           uint32_t size);
 };
 
 }  // namespace wikiopencite::citescoop::cli

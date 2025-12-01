@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "google/protobuf/message.h"
-
 #include "base_command.h"
 
 namespace wikiopencite::citescoop::cli {
