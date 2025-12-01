@@ -24,6 +24,7 @@
 #include "boost/program_options/value_semantic.hpp"
 #include "boost/program_options/variables_map.hpp"
 #include "citescoop/extract.h"
+#include "citescoop/io.h"
 #include "citescoop/parser.h"
 #include "citescoop/proto/file_header.pb.h"
 #include "citescoop/proto/language.pb.h"
@@ -254,17 +255,22 @@ void ExtractCommand::ProcessFile(std::istream& input, std::ostream& output,
 
   spdlog::trace("Finished extracting citations.");
   spdlog::debug("Stored {} pages and {} revisions.", pages->size(),
-                revisions->revisions_size());
+                revisions->size());
 
   auto fileheader = proto::FileHeader();
-  fileheader.set_page_count(static_cast<int64_t>(pages->size()));
+  fileheader.set_page_count(pages->size());
+  fileheader.set_revision_count(revisions->size());
   fileheader.set_language(lang);
 
+  auto writer = cs::MessageWriter(&output);
+
   spdlog::trace("Writing file header to output");
-  WriteMessage(fileheader, output);
+  writer.WriteMessage(fileheader);
 
   spdlog::trace("Writing revisions to output");
-  WriteMessage(*revisions, output);
+  for (auto& [unused, revision] : *revisions) {
+    writer.WriteMessage(revision);
+  }
 
   spdlog::trace("Writing pages to output");
   for (auto& page : *pages) {
