@@ -43,18 +43,13 @@ std::string FormatFileSize(size_t size) {
   constexpr std::array<const char*, 5> kUnits = {"B", "K", "M", "G", "T"};
   const int kUnitsSize = 5;
 
-  // Handle negative values
-  if (size < 0) {
-    return "0B";
-  }
-
   // Handle zero
   if (size == 0) {
     return "0B";
   }
 
   // Calculate the appropriate unit
-  int unit_index = 0;
+  uint8_t unit_index = 0;
   auto calc_size = static_cast<double>(size);
 
   const double kDivisor = 1024.0;
@@ -115,7 +110,7 @@ int MetaCommand::Run(std::vector<std::string> args,
 
   size_t total_revisions_size_disk = 0;
   size_t total_revisions_size_mem = 0;
-  for (int64_t i = 0; i < header->revision_count(); i++) {
+  for (uint64_t i = 0; i < header->revision_count(); i++) {
     auto revision = reader.ReadMessage<proto::Revision>();
     total_revisions_size_disk += revision->ByteSizeLong();
     total_revisions_size_mem += revision->SpaceUsedLong();
@@ -124,11 +119,11 @@ int MetaCommand::Run(std::vector<std::string> args,
   size_t total_page_size_disk = 0;
   size_t total_page_size_mem = 0;
   size_t total_citations = 0;
-  for (int64_t i = 0; i < header->page_count(); i++) {
+  for (uint64_t i = 0; i < header->page_count(); i++) {
     auto page = reader.ReadMessage<proto::Page>();
     total_page_size_disk += page->ByteSizeLong();
     total_page_size_mem += page->SpaceUsedLong();
-    total_citations += page->citations_size();
+    total_citations += static_cast<size_t>(page->citations_size());
   }
 
   const google::protobuf::EnumDescriptor* descriptor =

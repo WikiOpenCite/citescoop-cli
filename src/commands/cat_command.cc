@@ -55,12 +55,12 @@ int CatCommand::Run(std::vector<std::string> args,
   auto header = reader.ReadMessage<proto::FileHeader>();
   PrintMessage(*header, header->ByteSizeLong());
 
-  for (int64_t i = 0; i < header->revision_count(); i++) {
+  for (uint64_t i = 0; i < header->revision_count(); i++) {
     auto revision = reader.ReadMessage<proto::Revision>();
     PrintMessage(*revision, revision->ByteSizeLong());
   }
 
-  for (int64_t i = 0; i < header->page_count(); i++) {
+  for (uint64_t i = 0; i < header->page_count(); i++) {
     auto page = reader.ReadMessage<proto::Page>();
     PrintMessage(*page, page->ByteSizeLong());
   }
