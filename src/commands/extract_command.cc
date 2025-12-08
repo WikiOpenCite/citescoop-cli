@@ -50,7 +50,7 @@ ExtractCommand::ExtractCommand()
     ("input,i", options::value<std::string>(), "Input file.")
     ("output,o", options::value<std::string>(), "Output file.")
     ("stdin,si", "Read input from stdin.")
-    ("wiki", options::value<std::string>()->default_value("all"),
+    ("wiki", options::value<std::string>()->required(),
       "Name of wiki being processed. Used to set the language indicator"
       " of the file header.")
     ("bz2", "The input is compressed using bzip2 compression.")
