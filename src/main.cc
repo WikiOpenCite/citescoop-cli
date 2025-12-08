@@ -16,6 +16,7 @@
 #include "cli.h"
 #include "commands/base_command.h"
 #include "commands/cat_command.h"
+#include "commands/combine_command.h"
 #include "commands/extract_command.h"
 #include "commands/help_command.h"
 #include "commands/meta_command.h"
@@ -59,6 +60,10 @@ auto main(int argc, char** argv) -> int {
   cli.Register(command);
 
   command = std::shared_ptr<cli::BaseCommand>(new cli::CatCommand());
+  commands->push_back(command);
+  cli.Register(command);
+
+  command = std::shared_ptr<cli::BaseCommand>(new cli::CombineCommand());
   commands->push_back(command);
   cli.Register(command);
 
