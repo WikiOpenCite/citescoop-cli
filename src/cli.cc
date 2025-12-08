@@ -30,7 +30,7 @@ namespace wikiopencite::citescoop::cli {
 Cli::Cli() : global_options_("Global options") {
   global_options_.add_options()("help", "Show global help message")(
       "version", "Show citescoop version")(
-      "log-level", options::value<std::string>()->default_value("off"),
+      "log-level", options::value<std::string>()->default_value("warn"),
       "Logging level")("command", options::value<std::string>(),
                        "command to execute")(
       "subargs", options::value<std::vector<std::string>>(),
