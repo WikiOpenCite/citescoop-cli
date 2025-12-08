@@ -11,6 +11,10 @@
       "version>=": "1.89.0"
     },
     {
+      "name": "boost-uuid",
+      "version>=": "1.89.0"
+    },
+    {
       "name": "boost-algorithm",
       "version>=": "1.89.0"
     },
@@ -20,7 +24,7 @@
     },
     {
       "name": "citescoop",
-      "version>=": "0.2.0"
+      "version>=": "0.2.1"
     },
     {
       "name": "citescoop-proto",
