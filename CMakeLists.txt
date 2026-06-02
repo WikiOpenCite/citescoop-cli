@@ -24,12 +24,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # ---- Declare executable ----
 
 add_executable(citescoop-cli_exe
-  src/commands/base_command.cc
-  src/commands/cat_command.cc
-  src/commands/combine_command.cc
-  src/commands/extract_command.cc
-  src/commands/help_command.cc
-  src/commands/meta_command.cc
+  src/dump/cat.cc
+  src/dump/combine.cc
+  src/dump/extract.cc
+  src/dump/meta.cc
+  src/dump/topic.cc
+  src/help.cc
   src/cli.cc
   src/langmap.cc
   src/main.cc
@@ -41,6 +41,7 @@ target_include_directories(
     citescoop-cli_exe
     PRIVATE
     "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/configured>"
+    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
 )
 
 set_property(TARGET citescoop-cli_exe PROPERTY OUTPUT_NAME citescoop-cli)

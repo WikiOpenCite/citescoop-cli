@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2025 The University of St Andrews
+// SPDX-FileCopyrightText: 2025-2026 The University of St Andrews
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#ifndef SRC_COMMANDS_COMBINE_COMMAND_H_
-#define SRC_COMMANDS_COMBINE_COMMAND_H_
+#ifndef SRC_DUMP_COMBINE_H_
+#define SRC_DUMP_COMBINE_H_
 
 #include <memory>
 #include <string>
@@ -12,14 +12,14 @@
 #include "citescoop/proto/page.pb.h"
 #include "citescoop/proto/revision.pb.h"
 
-#include "base_command.h"
+#include "cli.h"
 
 namespace wikiopencite::citescoop::cli {
 
-class CombineCommand : public BaseCommand {
+class CombineCommand : public Command {
  public:
   CombineCommand();
-  int Run(std::vector<std::string> args, GlobalOptions globals) override;
+  ExitCode Run(std::vector<std::string> args, GlobalOptions globals) override;
 
  private:
   std::vector<std::unique_ptr<wikiopencite::proto::Revision>> revisions_;
@@ -32,4 +32,4 @@ class CombineCommand : public BaseCommand {
 
 }  // namespace wikiopencite::citescoop::cli
 
-#endif  // SRC_COMMANDS_COMBINE_COMMAND_H_
+#endif  // SRC_DUMP_COMBINE_H_

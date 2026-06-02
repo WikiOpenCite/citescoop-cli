@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2025 The University of St Andrews
+// SPDX-FileCopyrightText: 2025-2026 The University of St Andrews
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#ifndef SRC_COMMANDS_EXTRACT_COMMAND_H_
-#define SRC_COMMANDS_EXTRACT_COMMAND_H_
+#ifndef SRC_DUMP_EXTRACT_H_
+#define SRC_DUMP_EXTRACT_H_
 
 #include <filesystem>  // NOLINT(build/c++17)
 #include <ios>
@@ -17,14 +17,14 @@
 #include "citescoop/parser.h"
 #include "citescoop/proto/language.pb.h"
 
-#include "base_command.h"
+#include "cli.h"
 
 namespace wikiopencite::citescoop::cli {
 
-class ExtractCommand : public BaseCommand {
+class ExtractCommand : public Command {
  public:
   ExtractCommand();
-  int Run(std::vector<std::string> args, GlobalOptions globals) override;
+  ExitCode Run(std::vector<std::string> args, GlobalOptions globals) override;
 
  private:
   struct TempPaths {
@@ -41,8 +41,8 @@ class ExtractCommand : public BaseCommand {
   static const std::ios_base::openmode kReadOpenMode =
       std::ios::in | std::ios::binary;
 
-  int NormalMode(const boost::program_options::variables_map& args);
-  int LowMemMode(const boost::program_options::variables_map& args);
+  ExitCode NormalMode(const boost::program_options::variables_map& args);
+  ExitCode LowMemMode(const boost::program_options::variables_map& args);
 
   void ProcessFileInMemory(std::istream& input, std::ostream* output,
                            wikiopencite::proto::Language lang);
@@ -61,4 +61,4 @@ class ExtractCommand : public BaseCommand {
 
 }  // namespace wikiopencite::citescoop::cli
 
-#endif  // SRC_COMMANDS_EXTRACT_COMMAND_H_
+#endif  // SRC_DUMP_EXTRACT_H_

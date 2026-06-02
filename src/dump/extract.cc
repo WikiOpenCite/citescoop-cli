@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 The University of St Andrews
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "extract_command.h"
+#include "extract.h"
 
 #include <arpa/inet.h>  // NOLINT(misc-include-cleaner)
 
@@ -32,7 +32,7 @@
 #include "spdlog/spdlog.h"
 
 #include "../langmap.h"
-#include "base_command.h"
+#include "cli.h"
 
 namespace wikiopencite::citescoop::cli {
 
@@ -44,7 +44,7 @@ namespace uuids = boost::uuids;
 
 ExtractCommand::ExtractCommand()
     // NOLINTNEXTLINE(whitespace/indent_namespace)
-    : BaseCommand("extract", "Extract citations from") {
+    : Command("extract", "Extract citations from") {
   // clang-format off
   cli_options_.add_options()
     ("input,i", options::value<std::string>(), "Input file.")
@@ -62,7 +62,7 @@ ExtractCommand::ExtractCommand()
   // clang-format on
 }
 
-int ExtractCommand::Run(
+ExitCode ExtractCommand::Run(
     // NOLINTNEXTLINE(whitespace/indent_namespace)
     std::vector<std::string> args,
     // NOLINTNEXTLINE(whitespace/indent_namespace,misc-unused-parameters)
@@ -79,7 +79,7 @@ int ExtractCommand::Run(
   return NormalMode(parsed_args.first);
 }
 
-int ExtractCommand::NormalMode(const options::variables_map& args) {
+ExitCode ExtractCommand::NormalMode(const options::variables_map& args) {
   spdlog::debug("Starting dump processing in normal mode");
 
   auto output_file = EnsureArgument<std::string>("output", args);
@@ -103,10 +103,10 @@ int ExtractCommand::NormalMode(const options::variables_map& args) {
   }
 
   output.close();
-  return EXIT_SUCCESS;
+  return ExitCode::kOk;
 }
 
-int ExtractCommand::LowMemMode(const options::variables_map& args) {
+ExitCode ExtractCommand::LowMemMode(const options::variables_map& args) {
   spdlog::debug("Starting dump processing in low memory mode");
 
   auto output_file = EnsureArgument<std::string>("output", args);
@@ -161,7 +161,7 @@ int ExtractCommand::LowMemMode(const options::variables_map& args) {
   pages_input.close();
   revisions_input.close();
 
-  return EXIT_SUCCESS;
+  return ExitCode::kOk;
 }
 
 void ExtractCommand::ProcessFileInMemory(

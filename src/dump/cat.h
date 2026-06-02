@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2025 The University of St Andrews
+// SPDX-FileCopyrightText: 2025-2026 The University of St Andrews
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#ifndef SRC_COMMANDS_CAT_COMMAND_H_
-#define SRC_COMMANDS_CAT_COMMAND_H_
+#ifndef SRC_DUMP_CAT_H_
+#define SRC_DUMP_CAT_H_
 
 #include <cstdint>
 #include <string>
@@ -10,14 +10,14 @@
 
 #include "google/protobuf/message.h"
 
-#include "base_command.h"
+#include "cli.h"
 
 namespace wikiopencite::citescoop::cli {
 
-class CatCommand : public BaseCommand {
+class CatCommand : public Command {
  public:
   CatCommand();
-  int Run(std::vector<std::string> args, GlobalOptions globals) override;
+  ExitCode Run(std::vector<std::string> args, GlobalOptions globals) override;
 
  private:
   static void PrintMessage(const google::protobuf::Message& message,
@@ -26,4 +26,4 @@ class CatCommand : public BaseCommand {
 
 }  // namespace wikiopencite::citescoop::cli
 
-#endif  // SRC_COMMANDS_CAT_COMMAND_H_
+#endif  // SRC_DUMP_CAT_H_

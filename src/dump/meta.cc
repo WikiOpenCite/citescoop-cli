@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 The University of St Andrews
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "meta_command.h"
+#include "meta.h"
 
 #include <array>
 #include <cstddef>
@@ -29,7 +29,7 @@
 #include "citescoop/proto/revision.pb.h"
 #include "google/protobuf/descriptor.h"
 
-#include "base_command.h"
+#include "cli.h"
 
 namespace wikiopencite::citescoop::cli {
 
@@ -85,7 +85,7 @@ std::string FormatFileSize(size_t size) {
 
 MetaCommand::MetaCommand()
     // NOLINTNEXTLINE(whitespace/indent_namespace)
-    : BaseCommand("meta", "Display metainformation about a PBF file") {
+    : Command("meta", "Display metainformation about a PBF file") {
   // clang-format off
   cli_options_.add_options()
     ("file", options::value<std::string>()->required(), "Input file.")
@@ -96,9 +96,9 @@ MetaCommand::MetaCommand()
   // clang-format on
 }
 
-int MetaCommand::Run(std::vector<std::string> args,
-                     // NOLINTNEXTLINE(whitespace/indent_namespace)
-                     struct GlobalOptions) {
+ExitCode MetaCommand::Run(std::vector<std::string> args,
+                          // NOLINTNEXTLINE(whitespace/indent_namespace)
+                          struct GlobalOptions) {
   auto parsed_args = ParseArgs(args);
   auto file = fs::path(EnsureArgument<std::string>("file", parsed_args.first));
   auto pretty_print = EnsureArgument<bool>("pretty", parsed_args.first);
@@ -153,7 +153,7 @@ int MetaCommand::Run(std::vector<std::string> args,
   std::cout << "Total revisions size (memory): " << revisions_size_mem_str
             << '\n';
 
-  return EXIT_SUCCESS;
+  return ExitCode::kOk;
 }
 
 }  // namespace wikiopencite::citescoop::cli
