@@ -65,8 +65,8 @@ ExtractCommand::ExtractCommand()
 ExitCode ExtractCommand::Run(
     // NOLINTNEXTLINE(whitespace/indent_namespace)
     std::vector<std::string> args,
-    // NOLINTNEXTLINE(whitespace/indent_namespace,misc-unused-parameters)
-    struct GlobalOptions globals) {
+    // NOLINTNEXTLINE(whitespace/indent_namespace)
+    struct GlobalOptions /*globals*/) {
   auto parsed_args = ParseArgs(args);
   parser_ = std::make_shared<cs::Parser>(
       cs::ParserOptions{.ignore_invalid_ident = true});

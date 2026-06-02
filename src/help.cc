@@ -4,7 +4,6 @@
 #include "help.h"
 
 #include <cstdlib>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -40,8 +39,8 @@ Help::Help(
 ExitCode Help::Run(
     std::string topic,              // NOLINT(whitespace/indent_namespace)
     std::vector<std::string> args,  // NOLINT(whitespace/indent_namespace)
-    // NOLINTNEXTLINE(misc-unused-parameters, whitespace/indent_namespace)
-    struct GlobalOptions globals) {
+    // NOLINTNEXTLINE(whitespace/indent_namespace)
+    struct GlobalOptions /*globals*/) {
   auto parsed_args = ParseArgs(args);
 
   if (!topics_.contains(topic)) {

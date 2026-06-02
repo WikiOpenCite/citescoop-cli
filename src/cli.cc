@@ -3,8 +3,8 @@
 
 #include "cli.h"
 
+#include <algorithm>
 #include <cstdlib>
-#include <exception>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -26,7 +26,6 @@
 #include "help.h"
 
 namespace options = boost::program_options;
-namespace cmake = wikiopencite::citescoop::cmake;
 
 namespace wikiopencite::citescoop::cli {
 
@@ -39,7 +38,8 @@ Command::Command(std::string name, std::string topic, std::string description)
 }
 
 Command::Command(std::string name, std::string description)
-    : Command(name, "", description) {}  // NOLINT(whitespace/indent_namespace)
+    // NOLINTNEXTLINE(whitespace/indent_namespace)
+    : Command(std::move(name), "", std::move(description)) {}
 
 void Command::PrintHelp() {
   std::cout << fmt::format("Usage: {} [global options] {} [<args>]",
@@ -85,7 +85,7 @@ ExitCode Topic::Run(std::string command, std::vector<std::string> args,
     return ExitCode::kCliArgsError;
   }
 
-  return commands_.at(command)->Run(args, globals);
+  return commands_.at(command)->Run(std::move(args), globals);
 }
 
 void Topic::PrintAvailableCommands() {
@@ -105,7 +105,7 @@ void Topic::PrintHelp() {
   PrintAvailableCommands();
 }
 
-void Topic::PrintHelp(std::string command) {
+void Topic::PrintHelp(const std::string& command) {
   if (commands_.contains(command)) {
     commands_.at(command)->PrintHelp();
   } else {
@@ -145,11 +145,11 @@ ExitCode Cli::Run(int argc, char* argv[]) {  // NOLINT(modernize-avoid-c-arrays)
     return ExitCode::kOk;
 
   auto topic = GetTopic(parsed_global_args.first);
-  if (topic.length() == 0)
+  if (topic.empty())
     return ExitCode::kCliArgsError;
 
   auto command = GetCommand(parsed_global_args.first);
-  if (command.length() == 0)
+  if (command.empty())
     return ExitCode::kCliArgsError;
 
   auto command_args = options::collect_unrecognized(
@@ -165,7 +165,6 @@ ExitCode Cli::Run(int argc, char* argv[]) {  // NOLINT(modernize-avoid-c-arrays)
 }
 
 void Cli::PrintVersion() {
-  namespace cmake = wikiopencite::citescoop::cmake;
   std::cout << fmt::format("{} v{} ({})", cmake::kProjectName,
                            cmake::kProjectVersion, cmake::kGitSha)
             << '\n';
@@ -181,14 +180,14 @@ GlobalOptions Cli::GlobalArgsToStruct(
   return options;
 }
 
-std::string Cli::GetTopic(boost::program_options::variables_map vm) {
-  if (vm["topic"].empty()) {
+std::string Cli::GetTopic(const boost::program_options::variables_map& args) {
+  if (args["topic"].empty()) {
     spdlog::critical("No topic passed");
     std::cout << "Missing required argument topic" << '\n';
     return "";
   }
 
-  std::string topic = vm["topic"].as<std::string>();
+  std::string topic = args["topic"].as<std::string>();
   if (!topics_.contains(topic)) {
     spdlog::critical("Topic {} not found", topic);
     return "";
@@ -196,28 +195,30 @@ std::string Cli::GetTopic(boost::program_options::variables_map vm) {
   return topic;
 }
 
-std::string Cli::GetCommand(boost::program_options::variables_map vm) {
-  if (vm["command"].empty()) {
+std::string Cli::GetCommand(const boost::program_options::variables_map& args) {
+  if (args["command"].empty()) {
     spdlog::critical("No command passed");
     std::cout << "Missing required argument topic" << '\n';
     return "";
   }
 
-  std::string command = vm["command"].as<std::string>();
+  std::string command = args["command"].as<std::string>();
   return command;
 }
 
-void Cli::RemoveUsedArgs(std::vector<std::string>* args, std::string topic,
+void Cli::RemoveUsedArgs(std::vector<std::string>* args,
                          // NOLINTNEXTLINE(whitespace/indent_namespace)
-                         std::string command) {
-  auto i = std::find(args->begin(), args->end(), topic);
-  if (i != args->end()) {
-    args->erase(i);
+                         const std::string& topic,
+                         // NOLINTNEXTLINE(whitespace/indent_namespace)
+                         const std::string& command) {
+  auto index = std::ranges::find(args->begin(), args->end(), topic);
+  if (index != args->end()) {
+    args->erase(index);
   }
 
-  i = std::find(args->begin(), args->end(), command);
-  if (i != args->end()) {
-    args->erase(i);
+  index = std::ranges::find(args->begin(), args->end(), command);
+  if (index != args->end()) {
+    args->erase(index);
   }
 }
 
@@ -244,7 +245,6 @@ std::pair<options::variables_map, options::parsed_options> Cli::ParseGlobalArgs(
 }
 
 void Cli::PrintGlobalHelp() {
-  namespace cmake = wikiopencite::citescoop::cmake;
   std::cout << fmt::format(
                    "Usage: {} [global options] <topic> <command> [<args>]",
                    cmake::kProjectName)

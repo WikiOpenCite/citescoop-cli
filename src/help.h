@@ -27,8 +27,8 @@ class Help : public Topic, Command {
   ///
   /// This is generally a bit hacky but it is a simple way to make the
   /// help command function nicely.
-  ExitCode Run(std::vector<std::string> args,
-               struct GlobalOptions globals) override {
+  ExitCode Run(std::vector<std::string> /*args*/,
+               struct GlobalOptions /*globals*/) override {
     return ExitCode::kOk;
   }
 

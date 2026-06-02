@@ -8,7 +8,6 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <vector>
 
 #include "spdlog/common.h"
 #include "spdlog/spdlog.h"

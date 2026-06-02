@@ -158,7 +158,7 @@ class Topic {
   /// Print help for a specific command in this topic.
   ///
   /// @param command Command to print help for.
-  void PrintHelp(std::string command);
+  void PrintHelp(const std::string& command);
 
   /// A brief description of this topic
   std::string description() { return description_; }
@@ -208,16 +208,6 @@ class Cli {
   static GlobalOptions GlobalArgsToStruct(
       const boost::program_options::variables_map& args);
 
-  /// Get the topic from command line arguments
-  ///
-  /// Checks that the topic has been passed by the user and that it
-  /// exists. If not, will output message to user and return an empty
-  /// string.
-  ///
-  /// @param vm Parsed command line arguments
-  /// @return Current topic or an empty string on error
-  std::string GetTopic(boost::program_options::variables_map vm);
-
   /// Get the command from arguments
   ///
   /// Checks if the command has been passed by the user. Unlike
@@ -225,16 +215,28 @@ class Cli {
   /// is handled by the topic runner. If the command isn't passed,
   /// prints a message to the user and returns an empty string.
   ///
-  /// @param vm Parsed command line arguments.
+  /// @param args Parsed command line arguments.
   /// @return Current command or empty string on error.
-  std::string GetCommand(boost::program_options::variables_map vm);
+  static std::string GetCommand(
+      const boost::program_options::variables_map& args);
+
+  /// Get the topic from command line arguments
+  ///
+  /// Checks that the topic has been passed by the user and that it
+  /// exists. If not, will output message to user and return an empty
+  /// string.
+  ///
+  /// @param args Parsed command line arguments
+  /// @return Current topic or an empty string on error
+  std::string GetTopic(const boost::program_options::variables_map& args);
 
   /// Remove the command and topic from arguments to be passed to the
   /// @param args
   /// @param topic
   /// @param command
-  static void RemoveUsedArgs(std::vector<std::string>* args, std::string topic,
-                             std::string command);
+  static void RemoveUsedArgs(std::vector<std::string>* args,
+                             const std::string& topic,
+                             const std::string& command);
 
   /// @brief Parse the global arguments
   ///
