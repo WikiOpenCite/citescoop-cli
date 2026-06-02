@@ -8,18 +8,12 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <vector>
 
 #include "spdlog/common.h"
 #include "spdlog/spdlog.h"
 
 #include "cli.h"
-#include "commands/base_command.h"
-#include "commands/cat_command.h"
-#include "commands/combine_command.h"
-#include "commands/extract_command.h"
-#include "commands/help_command.h"
-#include "commands/meta_command.h"
+#include "dump/topic.h"
 
 namespace cli = wikiopencite::citescoop::cli;
 
@@ -48,28 +42,7 @@ auto main(int argc, char** argv) -> int {
 
   cli::Cli cli = cli::Cli();
 
-  auto commands =
-      std::make_shared<std::vector<std::shared_ptr<cli::BaseCommand>>>();
+  cli.Register(cli::NewDumpTopic());
 
-  auto command = std::shared_ptr<cli::BaseCommand>(new cli::ExtractCommand());
-  commands->push_back(command);
-  cli.Register(command);
-
-  command = std::shared_ptr<cli::BaseCommand>(new cli::HelpCommand(commands));
-  commands->push_back(command);
-  cli.Register(command);
-
-  command = std::shared_ptr<cli::BaseCommand>(new cli::CatCommand());
-  commands->push_back(command);
-  cli.Register(command);
-
-  command = std::shared_ptr<cli::BaseCommand>(new cli::CombineCommand());
-  commands->push_back(command);
-  cli.Register(command);
-
-  command = std::shared_ptr<cli::BaseCommand>(new cli::MetaCommand());
-  commands->push_back(command);
-  cli.Register(command);
-
-  return cli.Run(argc, argv);
+  return static_cast<int>(cli.Run(argc, argv));
 }

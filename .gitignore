@@ -3,6 +3,7 @@
 
 *.data
 *.old
+*.pbf
 
 # Prerequisites
 *.d

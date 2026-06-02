@@ -1,7 +1,7 @@
-// SPDX-FileCopyrightText: 2025 The University of St Andrews
+// SPDX-FileCopyrightText: 2025-2026 The University of St Andrews
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "cat_command.h"
+#include "cat.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -23,7 +23,7 @@
 #include "citescoop/proto/page.pb.h"
 #include "citescoop/proto/revision.pb.h"
 
-#include "base_command.h"
+#include "cli.h"
 
 namespace wikiopencite::citescoop::cli {
 
@@ -34,7 +34,7 @@ namespace proto = wikiopencite::proto;
 
 CatCommand::CatCommand()
     // NOLINTNEXTLINE(whitespace/indent_namespace)
-    : BaseCommand("cat", "Display a pbf file") {
+    : Command("cat", "Display a pbf file") {
   // clang-format off
   cli_options_.add_options()
     ("file", options::value<std::string>()->required(), "Input file.");
@@ -43,9 +43,9 @@ CatCommand::CatCommand()
   // clang-format on
 }
 
-int CatCommand::Run(std::vector<std::string> args,
-                    // NOLINTNEXTLINE(whitespace/indent_namespace)
-                    struct GlobalOptions) {
+ExitCode CatCommand::Run(std::vector<std::string> args,
+                         // NOLINTNEXTLINE(whitespace/indent_namespace)
+                         struct GlobalOptions) {
   auto parsed_args = ParseArgs(args);
   auto file = fs::path(EnsureArgument<std::string>("file", parsed_args.first));
 
@@ -65,7 +65,7 @@ int CatCommand::Run(std::vector<std::string> args,
     PrintMessage(*page, page->ByteSizeLong());
   }
 
-  return EXIT_SUCCESS;
+  return ExitCode::kOk;
 }
 
 void CatCommand::PrintMessage(

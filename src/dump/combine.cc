@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 The University of St Andrews
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "combine_command.h"
+#include "combine.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -24,7 +24,7 @@
 #include "google/protobuf/descriptor.h"
 #include "spdlog/spdlog.h"
 
-#include "base_command.h"
+#include "cli.h"
 
 namespace wikiopencite::citescoop::cli {
 
@@ -34,7 +34,7 @@ namespace proto = wikiopencite::proto;
 
 CombineCommand::CombineCommand()
     // NOLINTNEXTLINE(whitespace/indent_namespace)
-    : BaseCommand("combine", "Combine multiple pbf files into one") {
+    : Command("combine", "Combine multiple pbf files into one") {
   // clang-format off
   cli_options_.add_options()
     ("input,i", options::value<std::vector<std::string>>()->required(),
@@ -45,7 +45,7 @@ CombineCommand::CombineCommand()
   positional_options_.add("input", -1);
 }
 
-int CombineCommand::Run(
+ExitCode CombineCommand::Run(
     std::vector<std::string> args,  // NOLINT(whitespace/indent_namespace)
     struct GlobalOptions            // NOLINT(whitespace/indent_namespace)
 ) {
@@ -60,7 +60,7 @@ int CombineCommand::Run(
 
   WriteOutput(EnsureArgument<std::string>("output", parsed_args.first));
 
-  return EXIT_SUCCESS;
+  return ExitCode::kOk;
 }
 
 void CombineCommand::ReadFiles(const std::vector<std::string>& files) {
