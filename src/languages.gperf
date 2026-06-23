@@ -1,3 +1,6 @@
+%{
+namespace wikiopencite::citescoop::cli {
+%}
 %language=C++
 %define class-name Languages
 %define lookup-function-name lookup
@@ -350,3 +353,4 @@ zh-min-nan, 34
 zh-yue, 65
 zu, 166
 %%
+}
