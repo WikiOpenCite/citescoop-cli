@@ -11,7 +11,7 @@
 #include "extract.h"
 #include "meta.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 std::unique_ptr<Topic> NewDumpTopic() {
   auto topic = std::make_unique<Topic>(
@@ -23,4 +23,4 @@ std::unique_ptr<Topic> NewDumpTopic() {
   topic->Register(std::shared_ptr<Command>(new MetaCommand()));
   return topic;
 }
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump

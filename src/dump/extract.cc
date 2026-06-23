@@ -34,7 +34,7 @@
 #include "../langmap.h"
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 namespace cs = wikiopencite::citescoop;
 namespace fs = std::filesystem;
@@ -245,4 +245,4 @@ std::string ExtractCommand::GenerateUUID() {
   const uuids::uuid uuid = uuids::random_generator()();
   return uuids::to_string(uuid);
 }
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump

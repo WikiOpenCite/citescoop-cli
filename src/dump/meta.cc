@@ -31,7 +31,7 @@
 
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 namespace options = boost::program_options;
 namespace fs = std::filesystem;
@@ -156,4 +156,4 @@ ExitCode MetaCommand::Run(std::vector<std::string> args,
   return ExitCode::kOk;
 }
 
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump

@@ -9,7 +9,7 @@
 
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 class MetaCommand : public Command {
  public:
@@ -17,6 +17,6 @@ class MetaCommand : public Command {
   ExitCode Run(std::vector<std::string> args, GlobalOptions globals) override;
 };
 
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump
 
 #endif  // SRC_DUMP_META_H_

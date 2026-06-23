@@ -25,7 +25,7 @@
 
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 namespace options = boost::program_options;
 namespace fs = std::filesystem;
@@ -75,4 +75,4 @@ void CatCommand::PrintMessage(
   std::cout << message.DebugString() << '\n';
 }
 
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump

@@ -26,7 +26,7 @@
 
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 namespace options = boost::program_options;
 namespace cs = wikiopencite::citescoop;
@@ -122,4 +122,4 @@ void CombineCommand::WriteOutput(const std::string& file) {
   output.close();
 }
 
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump
