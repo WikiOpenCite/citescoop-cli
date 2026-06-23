@@ -14,7 +14,7 @@
 
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 class CombineCommand : public Command {
  public:
@@ -30,6 +30,6 @@ class CombineCommand : public Command {
   void WriteOutput(const std::string& file);
 };
 
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump
 
 #endif  // SRC_DUMP_COMBINE_H_

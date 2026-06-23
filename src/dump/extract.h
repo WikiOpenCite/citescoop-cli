@@ -19,7 +19,7 @@
 
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 class ExtractCommand : public Command {
  public:
@@ -59,6 +59,6 @@ class ExtractCommand : public Command {
                             const std::string& uuid);
 };
 
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump
 
 #endif  // SRC_DUMP_EXTRACT_H_

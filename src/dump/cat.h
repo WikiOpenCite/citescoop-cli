@@ -12,7 +12,7 @@
 
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 
 class CatCommand : public Command {
  public:
@@ -24,6 +24,6 @@ class CatCommand : public Command {
                            uint32_t size);
 };
 
-}  // namespace wikiopencite::citescoop::cli
+}  // namespace wikiopencite::citescoop::cli::dump
 
 #endif  // SRC_DUMP_CAT_H_

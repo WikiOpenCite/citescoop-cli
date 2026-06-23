@@ -42,7 +42,7 @@ auto main(int argc, char** argv) -> int {
 
   cli::Cli cli = cli::Cli();
 
-  cli.Register(cli::NewDumpTopic());
+  cli.Register(cli::dump::NewDumpTopic());
 
   return static_cast<int>(cli.Run(argc, argv));
 }

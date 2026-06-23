@@ -8,7 +8,7 @@
 
 #include "cli.h"
 
-namespace wikiopencite::citescoop::cli {
+namespace wikiopencite::citescoop::cli::dump {
 std::unique_ptr<Topic> NewDumpTopic();
 }
 
