@@ -14,6 +14,7 @@
 
 #include "cli.h"
 #include "dump/topic.h"
+#include "openalex/topic.h"
 
 namespace cli = wikiopencite::citescoop::cli;
 
@@ -43,6 +44,7 @@ auto main(int argc, char** argv) -> int {
   cli::Cli cli = cli::Cli();
 
   cli.Register(cli::dump::NewDumpTopic());
+  cli.Register(cli::openalex::NewOpenalexTopic());
 
   return static_cast<int>(cli.Run(argc, argv));
 }

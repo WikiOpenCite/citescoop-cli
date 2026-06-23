@@ -12,9 +12,11 @@ if(NOT GPERF_EXECUTABLE)
 endif()
 message(STATUS "Found gperf: ${GPERF_EXECUTABLE}")
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/configured/citescoop/cli)
+
 # Define the gperf input and output files
 set(GPERF_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/languages.gperf)
-set(GPERF_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/configured/citescoop/languages.h)
+set(GPERF_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/configured/citescoop/cli/languages.h)
 
 # Custom command to generate the perfect hash header
 add_custom_command(

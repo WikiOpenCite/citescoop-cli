@@ -29,6 +29,8 @@ add_executable(citescoop-cli_exe
   src/dump/extract.cc
   src/dump/meta.cc
   src/dump/topic.cc
+  src/openalex/process.cc
+  src/openalex/topic.cc
   src/help.cc
   src/cli.cc
   src/langmap.cc

@@ -7,7 +7,7 @@
 #include <cstring>
 #include <string>
 
-#include "citescoop/languages.h"
+#include "citescoop/cli/languages.h"
 #include "citescoop/proto/language.pb.h"
 
 namespace wikiopencite::citescoop::cli {
