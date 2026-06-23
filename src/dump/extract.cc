@@ -6,7 +6,6 @@
 #include <arpa/inet.h>  // NOLINT(misc-include-cleaner)
 
 #include <cstdint>
-#include <cstdlib>
 #include <filesystem>  // NOLINT(build/c++17)
 #include <fstream>
 #include <iostream>

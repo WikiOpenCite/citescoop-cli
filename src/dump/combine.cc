@@ -4,7 +4,6 @@
 #include "combine.h"
 
 #include <cstdint>
-#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <memory>

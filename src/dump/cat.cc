@@ -4,7 +4,6 @@
 #include "cat.h"
 
 #include <cstdint>
-#include <cstdlib>
 #include <filesystem>  // NOLINT(build/c++17)
 #include <fstream>
 #include <iostream>
