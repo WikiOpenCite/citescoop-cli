@@ -4,10 +4,12 @@
 #ifndef SRC_DUMP_COMBINE_H_
 #define SRC_DUMP_COMBINE_H_
 
+#include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "citescoop/proto/file_header.pb.h"
 #include "citescoop/proto/language.pb.h"
 #include "citescoop/proto/page.pb.h"
 #include "citescoop/proto/revision.pb.h"
@@ -22,12 +24,29 @@ class CombineCommand : public Command {
   ExitCode Run(std::vector<std::string> args, GlobalOptions globals) override;
 
  private:
-  std::vector<std::unique_ptr<wikiopencite::proto::Revision>> revisions_;
-  std::vector<std::unique_ptr<wikiopencite::proto::Page>> pages_;
-  wikiopencite::proto::Language language_;
+  struct Args {
+    std::vector<std::string> inputs;
+    std::string output;
+  };
 
-  void ReadFiles(const std::vector<std::string>& files);
-  void WriteOutput(const std::string& file);
+  struct Streams {
+    std::vector<std::ifstream> inputs;
+    std::ofstream output;
+  };
+
+  void LoadArgs(std::vector<std::string> args);
+  void OpenStreams();
+  void CloseStreams();
+  void ReadHeaders();
+  void ValidateFileType(wikiopencite::proto::FileType type);
+  void ValidateLanguage(wikiopencite::proto::Language language);
+  void CopyData();
+
+  wikiopencite::proto::Language language_;
+  Args args_;
+  Streams streams_;
+  uint64_t total_messages_;
+  wikiopencite::proto::FileType file_type_;
 };
 
 }  // namespace wikiopencite::citescoop::cli::dump

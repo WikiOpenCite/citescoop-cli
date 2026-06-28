@@ -5,6 +5,7 @@
 #define SRC_DUMP_EXTRACT_H_
 
 #include <filesystem>  // NOLINT(build/c++17)
+#include <fstream>
 #include <ios>
 #include <istream>
 #include <memory>
@@ -27,11 +28,32 @@ class ExtractCommand : public Command {
   ExitCode Run(std::vector<std::string> args, GlobalOptions globals) override;
 
  private:
-  struct TempPaths {
-    std::filesystem::path pages;
-    std::filesystem::path revisions;
+  struct Streams {
+    std::ifstream input;
+    std::ofstream pages;
+    std::ofstream revisions;
   };
 
+  struct Args {
+    std::string input;
+    std::string pages;
+    std::string revisions;
+    bool stdin;
+    wikiopencite::proto::Language language;
+    bool bz2;
+  };
+
+  void SetExtractor();
+
+  static std::string ExtractLangCode(const std::string& input);
+
+  void LoadArgs(std::vector<std::string> args);
+  void OpenStreams();
+  void CloseStreams();
+  void AddHeaders(std::pair<uint64_t, uint64_t> counts);
+
+  Args args_;
+  Streams streams_;
   std::shared_ptr<wikiopencite::citescoop::Parser> parser_;
 
   std::unique_ptr<wikiopencite::citescoop::Extractor> extractor_;
@@ -40,23 +62,6 @@ class ExtractCommand : public Command {
       std::ios::out | std::ios::binary | std::ios::trunc;
   static const std::ios_base::openmode kReadOpenMode =
       std::ios::in | std::ios::binary;
-
-  ExitCode NormalMode(const boost::program_options::variables_map& args);
-  ExitCode LowMemMode(const boost::program_options::variables_map& args);
-
-  void ProcessFileInMemory(std::istream& input, std::ostream* output,
-                           wikiopencite::proto::Language lang);
-
-  void SetExtractor(const boost::program_options::variables_map& args);
-
-  static void DirMustExist(const std::filesystem::path& path);
-
-  static std::string ExtractLangCode(const std::string& input);
-
-  static std::string GenerateUUID();
-
-  static TempPaths GetPaths(const std::filesystem::path& temp_dir,
-                            const std::string& uuid);
 };
 
 }  // namespace wikiopencite::citescoop::cli::dump
