@@ -28,7 +28,9 @@ struct GlobalOptions {
 
 enum class ExitCode : std::uint8_t {
   kOk = 0,
-  kCliArgsError = 3,
+  kGeneralError = 1,
+  kCliArgsError = 2,
+  kInputError = 3,
 };
 
 class CommandException : public std::exception {
