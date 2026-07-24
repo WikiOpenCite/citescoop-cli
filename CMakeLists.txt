@@ -24,15 +24,20 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # ---- Declare executable ----
 
 add_executable(citescoop-cli_exe
-  src/dump/cat.cc
-  src/dump/combine.cc
+  #src/dump/cat.cc
+  # src/dump/combine.cc
   src/dump/extract.cc
-  src/dump/meta.cc
+  #src/dump/meta.cc
   src/dump/topic.cc
   src/openalex/process.cc
   src/openalex/topic.cc
+  src/pbf/cat.cc
+  src/pbf/meta.cc
+  src/pbf/topic.cc
+  src/pbf/combine.cc
   src/help.cc
   src/cli.cc
+  src/io.cc
   src/langmap.cc
   src/main.cc
 )
