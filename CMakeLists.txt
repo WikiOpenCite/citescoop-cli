@@ -55,7 +55,7 @@ set_property(TARGET citescoop-cli_exe PROPERTY OUTPUT_NAME citescoop-cli)
 
 target_compile_features(citescoop-cli_exe PRIVATE cxx_std_20)
 
-find_package(Boost REQUIRED COMPONENTS program_options algorithm uuid)
+find_package(Boost REQUIRED COMPONENTS program_options algorithm)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(citescoop REQUIRED)
@@ -64,7 +64,6 @@ target_link_libraries(citescoop-cli_exe PRIVATE
   spdlog::spdlog_header_only
   Boost::program_options
   Boost::algorithm
-  Boost::uuid
   fmt::fmt
   wikiopencite::citescoop
   wikiopencite::citescoop-proto
