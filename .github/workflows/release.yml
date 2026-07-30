@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: 2025 The University of St Andrews
+# SPDX-License-Identifier: CC0-1.0
+
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+env:
+  VCPKG_COMMIT: "f3e10653cc27d62a37a3763cd84b38bca07c6075"
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install vcpkg
+        uses: friendlyanon/setup-vcpkg@v1
+        with: { committish: "${{ env.VCPKG_COMMIT }}" }
+
+      - name: Install required gperf dependencies
+        run: sudo apt install autoconf autoconf-archive automake libtool
+
+      - name: Configure
+        shell: pwsh
+        run: cmake -S . -B build --preset=ci-ubuntu
+
+      - name: Build
+        run: cmake --build build --config Release -j 2
+
+      - name: Install to prefix
+        run: cmake --install build --config Release --prefix release-prefix
+
+      - name: Create archive
+        run: |
+          tar -C release-prefix -czf citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz .
+          sha256sum citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz > citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz.sha256
+
+      - name: Create GitHub Release and upload asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz
+            citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
