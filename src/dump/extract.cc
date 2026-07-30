@@ -64,12 +64,18 @@ ExitCode ExtractCommand::Run(
 
   OpenStreams();
   std::pair<uint64_t, uint64_t> counts;
-  if (args_.stdin)
+  if (args_.stdin) {
+    spdlog::trace("Reading from stdin");
     counts =
         extractor_->Extract(std::cin, &streams_.pages, &streams_.revisions);
-  else
+  } else {
+    spdlog::trace("Reading from file: {}", args_.input);
     counts = extractor_->Extract(streams_.input, &streams_.pages,
                                  &streams_.revisions);
+  }
+
+  spdlog::info("Extracted {} pages and {} revisions", counts.first,
+               counts.second);
 
   CloseStreams();
   AddHeaders(counts);
@@ -110,54 +116,92 @@ void ExtractCommand::LoadArgs(const std::vector<std::string>& args) {
   args_.bz2 = parsed_args.first.contains("bz2");
   args_.language = WikipediaCodeToLanguage(
       ExtractLangCode(EnsureArgument<std::string>("wiki", parsed_args.first)));
+
+  spdlog::debug(
+      "Parsed arguments: input={}, pages={}, revisions={}, stdin={}, bz2={}, "
+      "language={}",
+      args_.input, args_.pages, args_.revisions, args_.stdin, args_.bz2,
+      static_cast<int>(args_.language));
 }
 
 void ExtractCommand::OpenStreams() {
-  if (!args_.stdin)
+  if (!args_.stdin) {
+    spdlog::debug("Opening input file: {}", args_.input);
     streams_.input = std::ifstream(args_.input);
+  }
 
+  spdlog::debug("Opening output file: {}", args_.pages);
   streams_.pages = std::ofstream(
       args_.pages + ".tmp", std::ios::out | std::ios::binary | std::ios::trunc);
+
+  spdlog::debug("Opening output file: {}", args_.revisions);
   streams_.revisions =
       std::ofstream(args_.revisions + ".tmp",
                     std::ios::out | std::ios::binary | std::ios::trunc);
 }
 
 void ExtractCommand::CloseStreams() {
-  if (!args_.stdin)
+  if (!args_.stdin) {
+    spdlog::trace("Closing input file: {}", args_.input);
     streams_.input.close();
+  }
 
+  spdlog::trace("Closing output file: {}", args_.pages);
   streams_.pages.close();
+
+  spdlog::trace("Closing output file: {}", args_.revisions);
   streams_.revisions.close();
 }
 
 void ExtractCommand::AddHeaders(std::pair<uint64_t, uint64_t> counts) const {
+  spdlog::debug("Adding headers to output files");
+  spdlog::trace("Opening temporary pages file: {}", args_.pages + ".tmp");
   std::ifstream tmp_pages(args_.pages + ".tmp");
+
+  spdlog::trace("Opening temporary revisions file: {}",
+                args_.revisions + ".tmp");
   std::ifstream tmp_revisions(args_.revisions + ".tmp");
+
+  spdlog::trace("Opening final pages file: {}", args_.pages);
   std::ofstream pages(args_.pages,
                       std::ios::out | std::ios::binary | std::ios::trunc);
+
+  spdlog::trace("Opening final revisions file: {}", args_.revisions);
   std::ofstream revisions(args_.revisions,
                           std::ios::out | std::ios::binary | std::ios::trunc);
-
-  auto attributes = proto::DumpFileAdditionalData();
-  attributes.set_language(args_.language);
 
   auto header = proto::FileHeader();
   header.set_count(counts.first);
   header.set_type(proto::FileType::FILE_TYPE_PAGES);
-  header.set_allocated_dump_file_attributes(&attributes);
+  header.mutable_dump_file_attributes()->set_language(args_.language);
   io::PrependHeader(header, tmp_pages, &pages);
 
   header.set_count(counts.second);
   header.set_type(proto::FileType::FILE_TYPE_REVISIONS);
   io::PrependHeader(header, tmp_revisions, &revisions);
 
+  spdlog::debug("Closing temporary and final files");
+  spdlog::trace("Closing temporary pages file: {}", args_.pages + ".tmp");
   tmp_pages.close();
+
+  spdlog::trace("Closing temporary revisions file: {}",
+                args_.revisions + ".tmp");
   tmp_revisions.close();
+
+  spdlog::trace("Closing final pages file: {}", args_.pages);
   pages.close();
+
+  spdlog::trace("Closing final revisions file: {}", args_.revisions);
   revisions.close();
 
+  spdlog::debug("Removing temporary files");
+  spdlog::trace("Removing temporary pages file: {}", args_.pages + ".tmp");
   fs::remove(args_.pages + ".tmp");
+
+  spdlog::trace("Removing temporary revisions file: {}",
+                args_.revisions + ".tmp");
   fs::remove(args_.revisions + ".tmp");
+
+  spdlog::info("Added headers to output files");
 }
 }  // namespace wikiopencite::citescoop::cli::dump

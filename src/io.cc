@@ -93,7 +93,12 @@ void PrependHeader(uint64_t message_count, proto::FileType file_type,
 void PrependHeader(const wikiopencite::proto::FileHeader& header,
                    const std::istream& input, std::ostream* output) {
   auto writer = MessageWriter(output);
+  spdlog::trace("Writing header to output stream");
   writer.WriteMessage(header);
+
+  spdlog::trace("Copying messages to output");
   *output << input.rdbuf();
+
+  spdlog::trace("Finished writing header and messages to output stream");
 }
 }  // namespace wikiopencite::citescoop::cli::io
