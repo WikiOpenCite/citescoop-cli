@@ -39,12 +39,10 @@ jobs:
       - name: Build
         run: cmake --build build --config Release -j 2
 
-      - name: Install to prefix
-        run: cmake --install build --config Release --prefix release-prefix
-
       - name: Create archive
         run: |
-          tar -C release-prefix -czf citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz .
+          # Only include the built binary, not the entire build directory
+          tar -C build -czf citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz ./citescoop-cli
           sha256sum citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz > citescoop-cli-${{ github.ref_name }}-linux-x64.tar.gz.sha256
 
       - name: Create GitHub Release and upload asset
