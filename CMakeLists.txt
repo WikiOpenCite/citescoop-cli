@@ -7,7 +7,7 @@ include(cmake/prelude.cmake)
 
 project(
     citescoop-cli
-    VERSION 0.1.1
+    VERSION 0.1.2
     DESCRIPTION "A command line interface to interact with the citescoop library."
     HOMEPAGE_URL "https://github.com/WikiOpenCite/citescoop-cli"
     LANGUAGES CXX
