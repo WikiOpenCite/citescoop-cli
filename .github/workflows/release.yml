@@ -11,6 +11,9 @@ on:
 env:
   VCPKG_COMMIT: "f3e10653cc27d62a37a3763cd84b38bca07c6075"
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-24.04
@@ -60,7 +63,7 @@ jobs:
           echo "PREVIOUS_TAG=${PREVIOUS_TAG}" >> $GITHUB_ENV
 
       - name: Create GitHub Release and upload asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
