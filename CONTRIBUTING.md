@@ -178,7 +178,13 @@ variable.
 This project aims to adhere to the [Google C++ Style
 Guide](https://google.github.io/styleguide/cppguide.html).
 
-# DCO
+# Making Commits
+
+## Commit Signing 
+
+All commits must be signed by a verified key in order to be merged into the main branch. Commits that are not signed cannot be merged under any circumstances. For more help, see the [GitHub Docs](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits) on signing commits.
+
+## DCO
 
 All contributions (including pull requests) must agree to the Developer
 Certificate of Origin (DCO) version 1.1. This is exactly the same one
