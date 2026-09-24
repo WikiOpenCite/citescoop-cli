@@ -8,7 +8,7 @@
     },
     {
       "name": "boost-program-options",
-      "version>=": "1.91.0"
+      "version>=": "1.92.0"
     },
     {
       "name": "boost-uuid",
