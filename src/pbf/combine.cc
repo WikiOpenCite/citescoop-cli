@@ -264,9 +264,8 @@ void Combine::SetAdditionalAttributes(wikiopencite::proto::FileHeader* header) {
   switch (file_type_) {
     case proto::FileType::FILE_TYPE_PAGES:
     case proto::FileType::FILE_TYPE_REVISIONS: {
-      auto attributes = proto::DumpFileAdditionalData();
-      attributes.set_language(language_);
-      header->set_allocated_dump_file_attributes(&attributes);
+      auto attributes = header->mutable_dump_file_attributes();
+      attributes->set_language(language_);
       break;
     }
     default:
